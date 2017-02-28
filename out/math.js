@@ -8,6 +8,32 @@ var math;
         return Point;
     }());
     math.Point = Point;
+    var Rectangle = (function () {
+        function Rectangle(x, y, width, height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+        Rectangle.prototype.isPointInRectangle = function (testX, testY) {
+            if (isInRange(this.x, testX, this.x + this.width) && isInRange(this.y, testY, this.y + this.height)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        return Rectangle;
+    }());
+    math.Rectangle = Rectangle;
+    function isInRange(min, testNum, max) {
+        if (testNum >= min && testNum <= max) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     function pointAppendMatrix(point, m) {
         var x = m.m11 * point.x + m.m12 * point.y + m.dx;
         var y = m.m21 * point.x + m.m22 * point.y + m.dy;

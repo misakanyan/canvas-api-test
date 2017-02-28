@@ -10,6 +10,34 @@ module math {
         }
     }
 
+    export class Rectangle {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        constructor(x: number, y: number, width: number, height: number) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+        isPointInRectangle(testX: number, testY: number) {
+            if (isInRange(this.x, testX, this.x + this.width) && isInRange(this.y, testY, this.y + this.height)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    function isInRange(min: number, testNum: number, max: number) {
+        if (testNum >= min && testNum <= max) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     export function pointAppendMatrix(point: Point, m: Matrix): Point {
         var x = m.m11 * point.x + m.m12 * point.y + m.dx;
         var y = m.m21 * point.x + m.m22 * point.y + m.dy;
