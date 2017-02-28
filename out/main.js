@@ -73,16 +73,17 @@ window.onload = function () {
             for (var i = 0; i < targetArray.length; i++) {
                 for (var _i = 0, _a = targetArray[i].eventArray; _i < _a.length; _i++) {
                     var x = _a[_i];
-                    if (x.type.match("onmousemove") &&
+                    if (x.type.match("onmove") &&
                         x.ifCapture == true) {
                         x.func(e);
+                        console.log("moving");
                     }
                 }
             }
             for (var i = targetArray.length - 1; i >= 0; i--) {
                 for (var _b = 0, _c = targetArray[i].eventArray; _b < _c.length; _b++) {
                     var x = _c[_b];
-                    if (x.type.match("onmousemove") &&
+                    if (x.type.match("onmove") &&
                         x.ifCapture == false) {
                         x.func(e);
                     }

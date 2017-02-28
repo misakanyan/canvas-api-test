@@ -73,15 +73,16 @@ window.onload = () => {
         if (isMouseDown) {
             for (let i = 0; i < targetArray.length; i++) {
                 for (let x of targetArray[i].eventArray) {
-                    if (x.type.match("onmousemove") &&
+                    if (x.type.match("onmove") &&
                         x.ifCapture == true) {
                         x.func(e);
+                        console.log("moving");
                     }
                 }
             }
             for (let i = targetArray.length - 1; i >= 0; i--) {
                 for (let x of targetArray[i].eventArray) {
-                    if (x.type.match("onmousemove") &&
+                    if (x.type.match("onmove") &&
                         x.ifCapture == false) {
                         x.func(e);
                     }
