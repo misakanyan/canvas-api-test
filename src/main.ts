@@ -4,9 +4,11 @@ window.onload = () => {
     var canvas = document.getElementById("app") as HTMLCanvasElement;
     var context2D = canvas.getContext("2d");
 
-    stage.addEventListener("onclick", () => {
-        console.log("click:stage");
+    var blank = new DisplayObjectContainer();
+    blank.addEventListener("onclick", () => {
+        console.log("click:blank");
     }, this, false);
+    stage.addChild(blank);
 
     var image = new Bitmap();
     image.src = "assets/monster.jpg";
@@ -19,7 +21,15 @@ window.onload = () => {
     image.addEventListener("onclick", () => {
         console.log("click:image");
     }, this, false);
-    stage.addChild(image);
+    image.addEventListener("onmove",()=>{
+        console.log("move:image");
+        let dx = currentX - lastX;
+        image.x+=dx;
+        let dy = currentY - lastY;
+        image.y+=dy;
+    },this,false);
+    //stage.addChild(image);
+    blank.addChild(image);
 
     let text = new TextField();
     text.text = "喵喵喵喵喵";
@@ -86,7 +96,7 @@ window.onload = () => {
         let newHitRusult = stage.hitTest(e.offsetX, e.offsetY)
         for (let i = targetArray.length - 1; i >= 0; i--) {
             for (let x of targetArray[i].eventArray) {
-                if (x.type.match("onclick") &&
+                if (x.type.match("onclick")&&
                     newHitRusult == hitResult) {
                     x.func(e);
                 }

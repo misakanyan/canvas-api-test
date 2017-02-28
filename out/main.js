@@ -8,9 +8,11 @@ window.onload = function () {
     var stage = new DisplayObjectContainer();
     var canvas = document.getElementById("app");
     var context2D = canvas.getContext("2d");
-    stage.addEventListener("onclick", function () {
-        console.log("click:stage");
+    var blank = new DisplayObjectContainer();
+    blank.addEventListener("onclick", function () {
+        console.log("click:blank");
     }, _this, false);
+    stage.addChild(blank);
     var image = new Bitmap();
     image.src = "assets/monster.jpg";
     image.scaleX = 2;
@@ -22,7 +24,15 @@ window.onload = function () {
     image.addEventListener("onclick", function () {
         console.log("click:image");
     }, _this, false);
-    stage.addChild(image);
+    image.addEventListener("onmove", function () {
+        console.log("move:image");
+        var dx = currentX - lastX;
+        image.x += dx;
+        var dy = currentY - lastY;
+        image.y += dy;
+    }, _this, false);
+    //stage.addChild(image);
+    blank.addChild(image);
     var text = new TextField();
     text.text = "喵喵喵喵喵";
     text.x = 20;
