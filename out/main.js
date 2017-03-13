@@ -8,11 +8,11 @@ window.onload = function () {
     var stage = new DisplayObjectContainer();
     var canvas = document.getElementById("app");
     var context2D = canvas.getContext("2d");
-    var blank = new DisplayObjectContainer();
-    blank.addEventListener("onclick", function () {
-        console.log("click:blank");
-    }, _this, false);
-    stage.addChild(blank);
+    //var blank = new DisplayObjectContainer();
+    //blank.addEventListener("onclick", () => {
+    //    console.log("click:blank");
+    //}, this, false);
+    //stage.addChild(blank);
     var image = new Bitmap();
     image.src = "assets/monster.jpg";
     image.scaleX = 2;
@@ -22,7 +22,7 @@ window.onload = function () {
     image.relativeAlpha = 0.9;
     image.rotation = 15;
     image.addEventListener("onclick", function () {
-        console.log("click:image");
+        alert("click:image");
     }, _this, false);
     image.addEventListener("onmove", function () {
         console.log("move:image");
@@ -32,13 +32,23 @@ window.onload = function () {
         image.y += dy;
     }, _this, false);
     //stage.addChild(image);
-    blank.addChild(image);
+    stage.addChild(image);
     var text = new TextField();
     text.text = "喵喵喵喵喵";
     text.x = 20;
-    text.y = 50;
+    text.y = 100;
     text.relativeAlpha = 0.5;
-    //stage.addChild(text);
+    //text.addEventListener("onclick", () => {
+    //   alert("click:text");
+    //}, this, false);
+    /*text.addEventListener("onmove",()=>{
+        console.log("move:text");
+        let dx = currentX - lastX;
+        image.x+=dx;
+        let dy = currentY - lastY;
+        image.y+=dy;
+    },this,false);*/
+    //blank.addChild(text);
     setInterval(function () {
         context2D.setTransform(1, 0, 0, 1, 0, 0);
         context2D.clearRect(0, 0, canvas.width, canvas.height);
@@ -54,6 +64,7 @@ window.onload = function () {
     var lastY;
     var isMouseDown = false;
     window.onmousedown = function (e) {
+        console.log("mousedown");
         isMouseDown = true;
         var targetArray = EventManager.getInstance().targets;
         targetArray.splice(0, targetArray.length);
@@ -203,7 +214,20 @@ var TextField = (function (_super) {
         context2D.fillText(this.text, this.x, 0);
     };
     TextField.prototype.hitTest = function (x, y) {
-        return false;
+        if (this.text) {
+            var rect = new math.Rectangle(0, 0, this.text.length * 10, 10);
+            console.log("width:" + rect.width + " height" + rect.height);
+            if (rect.isPointInRectangle(x, y)) {
+                var eventManager = EventManager.getInstance();
+                if (this.eventArray.length != 0) {
+                    eventManager.targets.push(this);
+                }
+                return this;
+            }
+            else {
+                return null;
+            }
+        }
     };
     return TextField;
 }(DisplayObject));

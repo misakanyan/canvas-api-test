@@ -1,5 +1,4 @@
-module math {
-
+namespace engine {
 
     export class Point {
         x: number;

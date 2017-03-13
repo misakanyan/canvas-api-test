@@ -1,119 +1,23 @@
-window.onload = () => {
+namespace engine {
 
-    var stage = new DisplayObjectContainer();
-    var canvas = document.getElementById("app") as HTMLCanvasElement;
-    var context2D = canvas.getContext("2d");
 
-    var blank = new DisplayObjectContainer();
-    blank.addEventListener("onclick", () => {
-        console.log("click:blank");
-    }, this, false);
-    stage.addChild(blank);
+    type MovieClipData = {
 
-    var image = new Bitmap();
-    image.src = "assets/monster.jpg";
-    image.scaleX = 2;
-    image.scaleY = 2;
-    image.x = 60;
-    image.y = 10;
-    image.relativeAlpha = 0.9;
-    image.rotation = 15;
-    image.addEventListener("onclick", () => {
-        console.log("click:image");
-    }, this, false);
-    image.addEventListener("onmove",()=>{
-        console.log("move:image");
-        let dx = currentX - lastX;
-        image.x+=dx;
-        let dy = currentY - lastY;
-        image.y+=dy;
-    },this,false);
-    //stage.addChild(image);
-    blank.addChild(image);
-
-    let text = new TextField();
-    text.text = "喵喵喵喵喵";
-    text.x = 20;
-    text.y = 50;
-    text.relativeAlpha = 0.5;
-    //stage.addChild(text);
-
-    setInterval(() => {
-        context2D.setTransform(1, 0, 0, 1, 0, 0);
-        context2D.clearRect(0, 0, canvas.width, canvas.height);
-        //text.x++;
-        //image.x++;
-        //image.y++;
-        stage.draw(context2D);
-    }, 30)
-
-    var hitResult: DisplayObject;
-    var currentX: number;
-    var currentY: number;
-    var lastX: number;
-    var lastY: number;
-    var isMouseDown: boolean = false;
-
-    window.onmousedown = (e) => {
-        isMouseDown = true;
-        let targetArray = EventManager.getInstance().targets;
-        targetArray.splice(0, targetArray.length);
-        hitResult = stage.hitTest(e.offsetX, e.offsetY);
-        console.log(hitResult);
-        currentX = e.offsetX;
-        currentY = e.offsetY;
-        console.log("hit:" + currentX + " " + currentY);
-    }
-    window.onmousemove = (e) => {
-        let targetArray = EventManager.getInstance().targets;
-        lastX = currentX;
-        lastY = currentY;
-        currentX = e.offsetX;
-        currentY = e.offsetY;
-        if (isMouseDown) {
-            for (let i = 0; i < targetArray.length; i++) {
-                for (let x of targetArray[i].eventArray) {
-                    if (x.type.match("onmove") &&
-                        x.ifCapture == true) {
-                        x.func(e);
-                        console.log("moving");
-                    }
-                }
-            }
-            for (let i = targetArray.length - 1; i >= 0; i--) {
-                for (let x of targetArray[i].eventArray) {
-                    if (x.type.match("onmove") &&
-                        x.ifCapture == false) {
-                        x.func(e);
-                    }
-                }
-            }
-        }
-    }
-    window.onmouseup = (e) => {
-        isMouseDown = false;
-        let targetArray = EventManager.getInstance().targets;
-        targetArray.splice(0, targetArray.length);
-        let newHitRusult = stage.hitTest(e.offsetX, e.offsetY)
-        for (let i = targetArray.length - 1; i >= 0; i--) {
-            for (let x of targetArray[i].eventArray) {
-                if (x.type.match("onclick")&&
-                    newHitRusult == hitResult) {
-                    x.func(e);
-                }
-            }
-        }
+        name: string,
+        frames: MovieClipFrameData[]
     }
 
-};
+    type MovieClipFrameData = {
+        "image": string
+    }
 
-interface Drawable {
+export interface Drawable {
 
     draw(context2D: CanvasRenderingContext2D);
 
 }
 
-abstract class DisplayObject implements Drawable {
+export abstract class DisplayObject implements Drawable {
 
     x: number = 0;
     y: number = 0;
@@ -122,24 +26,24 @@ abstract class DisplayObject implements Drawable {
     scaleX: number = 1;
     scaleY: number = 1;
     rotation: number = 0;
-    globalMatrix: math.Matrix;
-    relativeMatrix: math.Matrix;
+    globalMatrix: Matrix;
+    relativeMatrix: Matrix;
     parent: DisplayObjectContainer;
     eventArray: TheEvent[] = new Array();
 
     draw(context2D: CanvasRenderingContext2D) {
 
         context2D.save();
-        this.relativeMatrix = new math.Matrix();
+        this.relativeMatrix = new Matrix();
         this.relativeMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
 
         if (this.parent) {
             this.globalAlpha = this.parent.globalAlpha * this.relativeAlpha;
-            this.globalMatrix = math.matrixAppendMatrix(this.relativeMatrix, this.parent.globalMatrix);
+            this.globalMatrix = matrixAppendMatrix(this.relativeMatrix, this.parent.globalMatrix);
         }
         else {
             this.globalAlpha = this.relativeAlpha;
-            this.globalMatrix = new math.Matrix(1, 0, 0, 1, 0, 0);
+            this.globalMatrix = new Matrix(1, 0, 0, 1, 0, 0);
         }
 
         context2D.globalAlpha = this.globalAlpha;
@@ -162,7 +66,7 @@ abstract class DisplayObject implements Drawable {
 
 }
 
-class Bitmap extends DisplayObject {
+export class Bitmap extends DisplayObject {
 
     image: HTMLImageElement;
     private _src: string = "";
@@ -218,7 +122,7 @@ class Bitmap extends DisplayObject {
 
 
 
-class TextField extends DisplayObject {
+export class TextField extends DisplayObject {
 
     text: string = "";
     color: string = "";
@@ -230,11 +134,23 @@ class TextField extends DisplayObject {
     }
 
     hitTest(x: number, y: number) {
-        return false;
+        if (this.text) {
+            var rect = new Rectangle(0, 0, this.text.length * 10, 10);
+            console.log("width:"+rect.width+" height"+rect.height);
+            if (rect.isPointInRectangle(x, y)) {
+                var eventManager = EventManager.getInstance();
+                if (this.eventArray.length != 0) {
+                    eventManager.targets.push(this);
+                }
+                return this;
+            } else {
+                return null;
+            }
+        }
     }
 }
 
-class DisplayObjectContainer extends DisplayObject implements Drawable {
+export class DisplayObjectContainer extends DisplayObject implements Drawable {
 
     array: DisplayObject[] = [];
 
@@ -256,9 +172,9 @@ class DisplayObjectContainer extends DisplayObject implements Drawable {
             console.log("length:"+this.array.length);
             let target = this.array[i];
             console.log("target:"+target);
-            let point = new math.Point(x, y);
-            let invertChildLocalMatrix = math.invertMatrix(target.relativeMatrix);
-            let pointBaseOnChild = math.pointAppendMatrix(point, invertChildLocalMatrix);
+            let point = new Point(x, y);
+            let invertChildLocalMatrix = invertMatrix(target.relativeMatrix);
+            let pointBaseOnChild = pointAppendMatrix(point, invertChildLocalMatrix);
             let hitTestResult = target.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
             console.log("pointBaseOnChild.x:"+pointBaseOnChild.x+" pointBaseOnChild.y"+pointBaseOnChild.y);
             if (hitTestResult) {
@@ -287,7 +203,7 @@ class DisplayObjectContainer extends DisplayObject implements Drawable {
 
 }*/
 
-class EventManager {
+export class EventManager {
     targets: DisplayObject[];
     static instance: EventManager;
 
@@ -300,7 +216,7 @@ class EventManager {
     }
 }
 
-class TheEvent {
+export class TheEvent {
     type: string = "";
     ifCapture: boolean = false;
     target: DisplayObject;
@@ -312,4 +228,52 @@ class TheEvent {
         this.func = func;
     }
 }
+
+export class MovieClip extends Bitmap {
+
+        private advancedTime: number = 0;
+
+        private static FRAME_TIME = 20;
+
+        private static TOTAL_FRAME = 10;
+
+        private currentFrameIndex: number;
+
+        private data: MovieClipData;
+
+        constructor(data: MovieClipData) {
+            super();
+            this.setMovieClipData(data);
+            this.play();
+        }
+
+        ticker = (deltaTime) => {
+            // this.removeChild();
+            this.advancedTime += deltaTime;
+            if (this.advancedTime >= MovieClip.FRAME_TIME * MovieClip.TOTAL_FRAME) {
+                this.advancedTime -= MovieClip.FRAME_TIME * MovieClip.TOTAL_FRAME;
+            }
+            this.currentFrameIndex = Math.floor(this.advancedTime / MovieClip.FRAME_TIME);
+
+            let data = this.data;
+
+            let frameData = data.frames[this.currentFrameIndex];
+            let url = frameData.image;
+        }
+
+        play() {
+            engine.Ticker.getInstance().register(this.ticker);
+        }
+
+        stop() {
+            engine.Ticker.getInstance().unregister(this.ticker)
+        }
+
+        setMovieClipData(data: MovieClipData) {
+            this.data = data;
+            this.currentFrameIndex = 0;
+            // 创建 / 更新 
+
+        }
+    }
 

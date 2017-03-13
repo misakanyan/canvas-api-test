@@ -1,5 +1,5 @@
-var math;
-(function (math) {
+var engine;
+(function (engine) {
     var Point = (function () {
         function Point(x, y) {
             this.x = x;
@@ -7,7 +7,7 @@ var math;
         }
         return Point;
     }());
-    math.Point = Point;
+    engine.Point = Point;
     var Rectangle = (function () {
         function Rectangle(x, y, width, height) {
             this.x = x;
@@ -25,7 +25,7 @@ var math;
         };
         return Rectangle;
     }());
-    math.Rectangle = Rectangle;
+    engine.Rectangle = Rectangle;
     function isInRange(min, testNum, max) {
         if (testNum >= min && testNum <= max) {
             return true;
@@ -39,7 +39,7 @@ var math;
         var y = m.m21 * point.x + m.m22 * point.y + m.dy;
         return new Point(x, y);
     }
-    math.pointAppendMatrix = pointAppendMatrix;
+    engine.pointAppendMatrix = pointAppendMatrix;
     /**
      * 使用伴随矩阵法求逆矩阵
      * http://wenku.baidu.com/view/b0a9fed8ce2f0066f53322a9
@@ -65,7 +65,7 @@ var math;
         result.dy = -(b * tx + d * ty);
         return result;
     }
-    math.invertMatrix = invertMatrix;
+    engine.invertMatrix = invertMatrix;
     function matrixAppendMatrix(m1, m2) {
         var result = new Matrix();
         result.m11 = m1.m11 * m2.m11 + m1.m21 * m2.m12;
@@ -76,7 +76,7 @@ var math;
         result.dy = m2.m21 * m1.dx + m2.m22 * m1.dy + m2.dy;
         return result;
     }
-    math.matrixAppendMatrix = matrixAppendMatrix;
+    engine.matrixAppendMatrix = matrixAppendMatrix;
     var PI = Math.PI;
     var HalfPI = PI / 2;
     var PacPI = PI + HalfPI;
@@ -114,6 +114,6 @@ var math;
         };
         return Matrix;
     }());
-    math.Matrix = Matrix;
-})(math || (math = {}));
+    engine.Matrix = Matrix;
+})(engine || (engine = {}));
 //# sourceMappingURL=math.js.map
