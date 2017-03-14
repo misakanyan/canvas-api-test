@@ -60,7 +60,7 @@ declare namespace engine {
         parent: DisplayObjectContainer;
         eventArray: engine.TheEvent[];
         draw(context2D: CanvasRenderingContext2D): void;
-        addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean): void;
+        addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture?: boolean): void;
         render(context2D: CanvasRenderingContext2D): void;
         abstract hitTest(x: number, y: number): any;
     }
@@ -70,10 +70,12 @@ declare namespace engine {
         private _height;
         private _src;
         private isLoaded;
+        private _visible;
         constructor();
         src: string;
         width: number;
         height: number;
+        visible: boolean;
         render(context2D: CanvasRenderingContext2D): void;
         hitTest(x: number, y: number): this;
     }
@@ -93,8 +95,8 @@ declare namespace engine {
         fillColor: string;
         alpha: number;
         constructor();
-        beginfill(fillColor: string, alpha: number): void;
-        endfill(): void;
+        beginFill(fillColor: string, alpha: number): void;
+        endFill(): void;
         drawRect(x: number, y: number, width: number, height: number, context2D: CanvasRenderingContext2D): void;
         render(context2D: CanvasRenderingContext2D): void;
         hitTest(x: number, y: number): void;
@@ -154,5 +156,9 @@ declare namespace engine {
         static TOUCH_END: "mouseup";
         static TOUCH_CANCEL: "touchCancel";
         static TOUCH_TAP: "mousedown";
+    }
+    class TimerEvent {
+        static TIMER: "timerStart";
+        static TIMER_COMPLETE: "timerComplete";
     }
 }

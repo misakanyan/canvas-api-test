@@ -36,4 +36,11 @@ namespace engine{
 
     }
 
+    export class TimerEvent {
+
+        static TIMER: "timerStart";
+        static TIMER_COMPLETE: "timerComplete";
+
+    }
+
 }

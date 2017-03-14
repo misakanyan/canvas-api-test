@@ -325,61 +325,61 @@ interface Strategy {
 
 }
 
-class TaskTextElement extends egret.DisplayObjectContainer {
+class TaskTextElement extends engine.DisplayObjectContainer {
 
     private _taskid: string;
-    taskNameText: egret.TextField = new egret.TextField;
-    taskStatusText: egret.TextField = new egret.TextField;
-    taskDescText: egret.TextField = new egret.TextField;
-    button:egret.TextField = new egret.TextField;
+    taskNameText: engine.TextField = new engine.TextField;
+    taskStatusText: engine.TextField = new engine.TextField;
+    taskDescText: engine.TextField = new engine.TextField;
+    button:engine.TextField = new engine.TextField;
 
     constructor(id: string, name: string, status: TaskStatus, desc: string) {
         super();
         this._taskid = id;
         this.taskNameText.text = "任务 : " + name;
         this.taskNameText.size = 14;
-        this.taskNameText.fontFamily = "微软雅黑";
-        this.taskNameText.textColor = 0xffff00;
-        this.taskNameText.textAlign = egret.HorizontalAlign.LEFT;
-        this.taskNameText.type = egret.TextFieldType.DYNAMIC;
+        this.taskNameText.font = "微软雅黑";
+        this.taskNameText.color = "0xffff00";
+        //this.taskNameText.textAlign = engine.HorizontalAlign.LEFT;
+        //this.taskNameText.type = engine.TextFieldType.DYNAMIC;
         this.taskNameText.x = 10;
         this.taskNameText.y = 10;
-        this.taskNameText.width = 180;
-        this.taskNameText.height = 20;
-        this.taskNameText.lineSpacing = 6;
-        this.taskNameText.multiline = true;
+        //this.taskNameText.width = 180;
+        //this.taskNameText.height = 20;
+        //this.taskNameText.lineSpacing = 6;
+        //this.taskNameText.multiline = true;
 
         this.taskDescText.text = desc;
         this.taskDescText.size = 14;
-        this.taskDescText.fontFamily = "微软雅黑";
-        this.taskDescText.textAlign = egret.HorizontalAlign.LEFT;
-        this.taskDescText.type = egret.TextFieldType.DYNAMIC;
+        this.taskDescText.font = "微软雅黑";
+        //this.taskDescText.textAlign = engine.HorizontalAlign.LEFT;
+        //this.taskDescText.type = engine.TextFieldType.DYNAMIC;
         this.taskDescText.x = 10;
         this.taskDescText.y = 30;
-        this.taskDescText.width = 180;
-        this.taskDescText.height = 40;
-        this.taskDescText.lineSpacing = 6;
-        this.taskDescText.multiline = true;
+        //this.taskDescText.width = 180;
+        //this.taskDescText.height = 40;
+        //this.taskDescText.lineSpacing = 6;
+        //this.taskDescText.multiline = true;
 
         this.taskStatusText.text = "当前状态 : " + ChineseTaskStatus[status];
         this.taskStatusText.size = 14;
-        this.taskStatusText.fontFamily = "微软雅黑";
-        this.taskStatusText.textAlign = egret.HorizontalAlign.LEFT;
-        this.taskStatusText.type = egret.TextFieldType.DYNAMIC;
+        this.taskStatusText.font = "微软雅黑";
+        //this.taskStatusText.textAlign = engine.HorizontalAlign.LEFT;
+        //this.taskStatusText.type = engine.TextFieldType.DYNAMIC;
         this.taskStatusText.x = 10;
         this.taskStatusText.y = 70;
-        this.taskStatusText.width = 180;
-        this.taskStatusText.height = 40;
-        this.taskStatusText.lineSpacing = 6;
-        this.taskStatusText.multiline = true;
+        //this.taskStatusText.width = 180;
+        //this.taskStatusText.height = 40;
+        //this.taskStatusText.lineSpacing = 6;
+        //this.taskStatusText.multiline = true;
 
         this.button.x = 160;
         this.button.y = 80;
         this.button.text = "接受";
         this.button.size = 14;
-        this.button.fontFamily = "微软雅黑";
-        this.button.touchEnabled = true;
-        this.button.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onClick, this);
+        this.button.font = "微软雅黑";
+        //this.button.touchEnabled = true;
+        //this.button.addEventListener(engine.TouchEvent.TOUCH_TAP, this.onClick, this);
         this.button.visible = false;
 
         this.addChild(this.taskNameText);
@@ -399,40 +399,40 @@ class TaskTextElement extends egret.DisplayObjectContainer {
         return this._taskid;
     }
 
-    private onClick(e:egret.TouchEvent){
-        if(e.currentTarget.text == "接受" || e.currentTarget.text == "提交"){
-            console.log("任务id为"+this.taskId+"的按钮被按下");
-            console.log(this._taskid);
-            for(var i = 0;i<NPCManager.getInstance().NPCList.length;i++){
-                for(var j = 0;j<NPCManager.getInstance().NPCList[i]._taskList.length;j++){
-                    console.log(NPCManager.getInstance().NPCList[i]._taskList[j].id);
-                    if(this._taskid == NPCManager.getInstance().NPCList[i]._taskList[j].id){
-                        CommandList.getInstance().addCommand(new TalkCommand(NPCManager.getInstance().NPCList[i]));
-                        CommandList.getInstance().execute();
-                        console.log("发送谈话命令");
-                    }
-                }
-            }
-        }
-    }
+    // private onClick(e:engine.TouchEvent){
+    //     if(e.currentTarget.text == "接受" || e.currentTarget.text == "提交"){
+    //         console.log("任务id为"+this.taskId+"的按钮被按下");
+    //         console.log(this._taskid);
+    //         for(var i = 0;i<NPCManager.getInstance().NPCList.length;i++){
+    //             for(var j = 0;j<NPCManager.getInstance().NPCList[i]._taskList.length;j++){
+    //                 console.log(NPCManager.getInstance().NPCList[i]._taskList[j].id);
+    //                 if(this._taskid == NPCManager.getInstance().NPCList[i]._taskList[j].id){
+    //                     CommandList.getInstance().addCommand(new TalkCommand(NPCManager.getInstance().NPCList[i]));
+    //                     CommandList.getInstance().execute();
+    //                     console.log("发送谈话命令");
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
 
 }
 
-class TaskPanel extends egret.DisplayObjectContainer implements Observer {
+class TaskPanel extends engine.DisplayObjectContainer implements Observer {
 
     private taskTextList: TaskTextElement[] = [];
-    private bg: egret.Bitmap = new egret.Bitmap;
-    private bgShape: egret.Shape = new egret.Shape;
+    private bg: engine.Bitmap = new engine.Bitmap;
+    private bgShape: engine.Shape = new engine.Shape;
 
     constructor() {
         super();
         this.bgShape.x = 0;
         this.bgShape.y = 0;
-        this.bgShape.graphics.clear();
-        this.bgShape.graphics.beginFill(0x000000, .5);
-        this.bgShape.graphics.drawRect(0, 0, 200, 200);
-        this.bgShape.graphics.endFill();
+        //this.bgShape.graphics.clear();
+        //this.bgShape.graphics.beginFill(0x000000, .5);
+        //this.bgShape.graphics.drawRect(0, 0, 200, 200);
+        //this.bgShape.graphics.endFill();
         this.addChild(this.bgShape);
         for (var i: number = 0; i < TaskService.getInstance().taskList.length; i++) {
             var taskText = new TaskTextElement(TaskService.getInstance().taskList[i].id, TaskService.getInstance().taskList[i].name, TaskService.getInstance().taskList[i].status, TaskService.getInstance().taskList[i].desc);
@@ -448,12 +448,12 @@ class TaskPanel extends egret.DisplayObjectContainer implements Observer {
                 this.taskTextList[i].changeText(task);
                 if(task.status == TaskStatus.ACCEPTABLE){
                     this.taskTextList[i].button.text = "接受";
-                    this.taskTextList[i].button.visible = true;
+                    //this.taskTextList[i].button.visible = true;
                 }else if(task.status == TaskStatus.CAN_SUBMIT){
                     this.taskTextList[i].button.text = "提交";
-                    this.taskTextList[i].button.visible = true;
+                    //this.taskTextList[i].button.visible = true;
                 }else{
-                    this.taskTextList[i].button.visible = false;
+                    //this.taskTextList[i].button.visible = false;
                 }
             }
         }
@@ -461,17 +461,17 @@ class TaskPanel extends egret.DisplayObjectContainer implements Observer {
 
 }
 
-class DialogPanel extends egret.DisplayObjectContainer {
+class DialogPanel extends engine.DisplayObjectContainer {
 
-    charaName: egret.TextField = new egret.TextField;
-    desc: egret.TextField = new egret.TextField;
-    bg: egret.Bitmap = new egret.Bitmap;
+    charaName: engine.TextField = new engine.TextField;
+    desc: engine.TextField = new engine.TextField;
+    bg: engine.Bitmap = new engine.Bitmap;
     dialogue: any[] = [];
     dialogueCount: number = 0;
     dialogueTotal: number = 0;
-    tachie_left: egret.Bitmap = new egret.Bitmap;
-    tachie_right: egret.Bitmap = new egret.Bitmap;
-    //button: egret.Shape = new egret.Shape;
+    tachie_left: engine.Bitmap = new engine.Bitmap;
+    tachie_right: engine.Bitmap = new engine.Bitmap;
+    //button: engine.Shape = new engine.Shape;
     private currentTaskId: string = "-1";
 
     constructor() {
@@ -483,7 +483,7 @@ class DialogPanel extends egret.DisplayObjectContainer {
         this.button.graphics.beginFill(0x000000, 1.0);
         this.button.graphics.drawRect(0, 0, 50, 30);
         this.button.graphics.endFill();  */
-        this.bg.texture = RES.getRes("dialog_png");
+        this.bg.src = "resource/assets/dialog.png";
         this.bg.x = 0;
         this.bg.y = 0;
 
@@ -493,7 +493,7 @@ class DialogPanel extends egret.DisplayObjectContainer {
         //this.tachie_left.width = 200;
         //this.tachie_left.height = 250;
 
-        this.tachie_right.texture = RES.getRes("npc_0_tachie_png");
+        this.tachie_right.src = "resource/assets/npc_0_tachie.png";
         this.tachie_right.x = 0;
         this.tachie_right.y = 0;
         //this.addChild(this.tachie_right);
@@ -502,32 +502,32 @@ class DialogPanel extends egret.DisplayObjectContainer {
 
         this.desc.text = "确定";
         this.desc.size = 16;
-        this.desc.fontFamily = "微软雅黑";
+        this.desc.font = "微软雅黑";
         this.desc.x = 75;
         this.desc.y = 420;
-        this.desc.width = 300;
-        this.desc.height = 50;
-        this.desc.textAlign = egret.HorizontalAlign.LEFT;
-        this.desc.type = egret.TextFieldType.DYNAMIC;
-        this.desc.lineSpacing = 6;
-        this.desc.multiline = true;
+        // this.desc.width = 300;
+        // this.desc.height = 50;
+        // this.desc.textAlign = engine.HorizontalAlign.LEFT;
+        // this.desc.type = engine.TextFieldType.DYNAMIC;
+        // this.desc.lineSpacing = 6;
+        // this.desc.multiline = true;
 
         this.charaName.text = "Lisbeth";
         this.charaName.size = 18;
-        this.charaName.fontFamily = "微软雅黑";
-        this.charaName.anchorOffsetX = this.charaName.width / 2;
-        this.charaName.anchorOffsetY = this.charaName.height / 2;
+        this.charaName.font = "微软雅黑";
+        //this.charaName.anchorOffsetX = this.charaName.width / 2;
+        //this.charaName.anchorOffsetY = this.charaName.height / 2;
         this.charaName.x = 128;
         this.charaName.y = 394;
 
-        this.anchorOffsetX = this.width / 2;
-        this.anchorOffsetY = this.height / 2;
+        //this.anchorOffsetX = this.width / 2;
+        //this.anchorOffsetY = this.height / 2;
         //this.x = 150;
         //this.y = 0;
         //console.log("Dialog Panel button x: "+this.button.x+"y: "+this.button.y);
 
-        this.touchEnabled = true;
-        this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onClick, this);
+        //this.touchEnabled = true;
+        //this.addEventListener(engine.TouchEvent.TOUCH_TAP, this.onClick, this);
 
     }
 

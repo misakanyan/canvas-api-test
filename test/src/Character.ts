@@ -79,14 +79,14 @@ class Character extends engine.DisplayObjectContainer {
 
             //用Timer来实现固定间隔顺序读取路径数组中的点并移动
             var interval:number = 250;
-            this.timer = new egret.Timer(interval, path.length - 1);
+            this.timer = new engine.Timer(interval, path.length - 1,0);
 
-            this.timer.addEventListener(egret.TimerEvent.TIMER, function (e: egret.TimerEvent): void {
+            this.timer.addEventListener(engine.TimerEvent.TIMER, function (e: egret.TimerEvent): void {
                 egret.Tween.get(this._body).to({ x: (path[this.timer.currentCount].x + 1) * 50 - 25, y: (path[this.timer.currentCount].y) * 50 }, interval);
                 console.log("target:" + path[this.timer.currentCount - 1].x + " , " + path[this.timer.currentCount - 1].y);
             }, this);
 
-            this.timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function (e: egret.TimerEvent): void {
+            this.timer.addEventListener(engine.TimerEvent.TIMER_COMPLETE, function (e: egret.TimerEvent): void {
                 this.idle();
                 this.callback();
             }, this);

@@ -41,7 +41,7 @@ namespace engine {
 
         }
 
-        addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean) {
+        addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture?: boolean) {
             let e = new engine.TheEvent(eventType, ifCapture, target, func);
             this.eventArray.push(e);
         }
@@ -61,8 +61,8 @@ namespace engine {
         private _width: number = -1;
         private _height: number = -1;
         private _src: string = "";
-        private isLoaded:boolean = false;
-        private _visible:boolean = true;
+        private isLoaded: boolean = false;
+        private _visible: boolean = true;  //暂无用
 
         constructor() {
 
@@ -84,7 +84,7 @@ namespace engine {
             this.height = height;
         }
 
-        set visible(visible:boolean){
+        set visible(visible: boolean) {
             this.visible = visible;
         }
 
@@ -138,13 +138,13 @@ namespace engine {
         text: string = "";
         color: string = "";
         private _size: number = 18;
-        private _font:string = "微软雅黑";
+        private _font: string = "微软雅黑";
 
-        set size(size:number){
+        set size(size: number) {
             this.size = size;
         }
 
-        set font(font:string){
+        set font(font: string) {
             this._font = font;
         }
 
@@ -183,7 +183,7 @@ namespace engine {
             super();
         }
 
-        beginfill(fillColor: string, alpha: number) {
+        beginFill(fillColor: string, alpha: number) {
             var type = "^#[0-9a-fA-F]{6}{1}$";
             var test = new RegExp(type);
             if (fillColor.match(test) != null) {
@@ -198,7 +198,7 @@ namespace engine {
             }
         }
 
-        endfill() {
+        endFill() {
             this.fillColor = "#000000";
             this.alpha = 1;
         }
@@ -280,26 +280,6 @@ namespace engine {
     
     }*/
 
-    export class Timer{
-
-        interval:number = 1000;
-        loopNum:number = 1;
-        delayTime:number = 0;
-
-        constructor(interval:number,loopNum:number,delayTime:number){
-            this.interval = interval;
-            this.loopNum = loopNum;
-            if(arguments.length>=3){
-                this.delayTime = delayTime;
-            }
-        }
-
-        addEventListener(){
-
-        }
-
-    }
-
     export type MovieClipData = {
 
         name: string,
@@ -356,6 +336,42 @@ namespace engine {
             // 创建 / 更新 
 
         }
+    }
+
+    export class Timer {
+
+        interval: number = 1000;
+        loopNum: number = 1;
+        delayTime: number = 0;
+
+        constructor(interval: number, loopNum: number, delayTime: number) {
+            this.interval = interval;
+            this.loopNum = loopNum;
+            if (arguments.length >= 3) {
+                this.delayTime = delayTime;
+            }
+        }
+
+        addEventListener() {
+
+        }
+
+    }
+
+    export class Tween {
+
+        target:any;
+        totalStep:number = 10;
+        currentStep:number = 0;
+
+        get(target:any){
+            this.target = target;
+        }
+
+        to(x:number,y:number){
+
+        }
+
     }
 
 }

@@ -195,6 +195,7 @@ var engine;
             this._height = -1;
             this._src = "";
             this.isLoaded = false;
+            this._visible = true; //暂无用
             this.image = document.createElement('img');
         }
         Object.defineProperty(Bitmap.prototype, "src", {
@@ -215,6 +216,13 @@ var engine;
         Object.defineProperty(Bitmap.prototype, "height", {
             set: function (height) {
                 this.height = height;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Bitmap.prototype, "visible", {
+            set: function (visible) {
+                this.visible = visible;
             },
             enumerable: true,
             configurable: true
@@ -316,7 +324,7 @@ var engine;
             this.fillColor = "#000000";
             this.alpha = 1;
         }
-        Shape.prototype.beginfill = function (fillColor, alpha) {
+        Shape.prototype.beginFill = function (fillColor, alpha) {
             var type = "^#[0-9a-fA-F]{6}{1}$";
             var test = new RegExp(type);
             if (fillColor.match(test) != null) {
@@ -332,7 +340,7 @@ var engine;
                 console.log("invaild alpha value");
             }
         };
-        Shape.prototype.endfill = function () {
+        Shape.prototype.endFill = function () {
             this.fillColor = "#000000";
             this.alpha = 1;
         };
@@ -521,4 +529,10 @@ var engine;
         return TouchEvent;
     }());
     engine.TouchEvent = TouchEvent;
+    var TimerEvent = (function () {
+        function TimerEvent() {
+        }
+        return TimerEvent;
+    }());
+    engine.TimerEvent = TimerEvent;
 })(engine || (engine = {}));

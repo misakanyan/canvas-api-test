@@ -88,15 +88,15 @@ class Bag extends engine.DisplayObjectContainer {
                 this.items[i].x = 0;
                 this.items[i].y = 300+i*20;
                 this.items[i].size = 14;
-                this.items[i].addEventListener(egret.TouchEvent.TOUCH_TAP, this.addItemToHero, this)
-                this.items[i].touchEnabled = true;
+                //this.items[i].addEventListener(egret.TouchEvent.TOUCH_TAP, this.addItemToHero, this)
+                //this.items[i].touchEnabled = true;
                 this.addChild(this.items[i]);
                 this.items[i].visible = false;
             }
         }
 
-        this.switchButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.checkStatus, this);
-        this.switchButton.touchEnabled = true;
+        //this.switchButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.checkStatus, this);
+        //this.switchButton.touchEnabled = true;
     }
 
     private initPanel(){
@@ -114,12 +114,12 @@ class Bag extends engine.DisplayObjectContainer {
         this.hero.addWeapon(weapon2);
         this.player.addHero(this.hero);
 
-        this.playerPanel = new PlayerPanel(this.stage, this.player);
+        //this.playerPanel = new PlayerPanel(this.stage, this.player);
 
         //this.playerPanel.addWeapon();
         this.playerPanel.setPanel();
         //console.log("武器数量："+this.hero.weapons.length);
-        this.addChild(this.playerPanel);
+        //this.addChild(this.playerPanel);
         this.playerPanel.visible = false;
     }
 
@@ -153,16 +153,16 @@ class Bag extends engine.DisplayObjectContainer {
         //this.removeChild(this.BagPanel);
     }
 
-    private addItemToHero(e:egret.TouchEvent){
-        console.log("add");
-        if(e.target.text == "血腥砍刀"){
-            console.log("addsuccess");
-            this.player.heroesInTeam.addWeapon(new Weapon(2));
-            this.playerPanel.updatePlayer(this.player);
-            this.playerPanel.setPanel();
-            e.target.text = null;
-        }
-    }
+    // private addItemToHero(e:egret.TouchEvent){
+    //     console.log("add");
+    //     if(e.target.text == "血腥砍刀"){
+    //         console.log("addsuccess");
+    //         this.player.heroesInTeam.addWeapon(new Weapon(2));
+    //         this.playerPanel.updatePlayer(this.player);
+    //         this.playerPanel.setPanel();
+    //         e.target.text = null;
+    //     }
+    // }
 
     public addItemToBag(item:string){
         this.items.push(new engine.TextField());
@@ -170,9 +170,9 @@ class Bag extends engine.DisplayObjectContainer {
         this.items[this.items.length - 1].size = 16;
         this.items[this.items.length - 1].x = 0;
         this.items[this.items.length - 1].y = 300 + (this.items.length - 1)*20;
-        this.items[this.items.length - 1].addEventListener(egret.TouchEvent.TOUCH_TAP, this.addItemToHero, this)
+        //this.items[this.items.length - 1].addEventListener(egret.TouchEvent.TOUCH_TAP, this.addItemToHero, this)
         this.items[this.items.length - 1].touchEnabled = true;
-        this.addChild(this.items[this.items.length - 1]);
+        //this.addChild(this.items[this.items.length - 1]);
         this.items[this.items.length - 1].visible = false;
     }
 
