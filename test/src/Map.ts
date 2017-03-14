@@ -111,14 +111,14 @@ interface TileData {
 
 
 //格子类
-class Tile extends egret.DisplayObjectContainer {
+class Tile extends engine.DisplayObjectContainer {
 
     data: TileData;
 
     constructor(data: TileData) {
         super();
         this.data = data;
-        var bitmap = new egret.Bitmap;
+        var bitmap = new engine.Bitmap;
         var size: number = 50;
         bitmap.texture = RES.getRes(data.image);
         bitmap.x = (data.x - 1) * size;

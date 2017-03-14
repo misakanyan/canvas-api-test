@@ -58,7 +58,7 @@ declare namespace engine {
         globalMatrix: Matrix;
         relativeMatrix: Matrix;
         parent: DisplayObjectContainer;
-        eventArray: TheEvent[];
+        eventArray: engine.TheEvent[];
         draw(context2D: CanvasRenderingContext2D): void;
         addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean): void;
         render(context2D: CanvasRenderingContext2D): void;
@@ -80,6 +80,10 @@ declare namespace engine {
     class TextField extends DisplayObject {
         text: string;
         color: string;
+        private _size;
+        private _font;
+        size: number;
+        font: string;
         render(context2D: CanvasRenderingContext2D): void;
         hitTest(x: number, y: number): this;
     }
@@ -101,17 +105,12 @@ declare namespace engine {
         addChild(child: DisplayObject): void;
         hitTest(x: any, y: any): any;
     }
-    class EventManager {
-        targets: DisplayObject[];
-        static instance: EventManager;
-        static getInstance(): EventManager;
-    }
-    class TheEvent {
-        type: string;
-        ifCapture: boolean;
-        target: DisplayObject;
-        func: Function;
-        constructor(type: string, ifCapture: boolean, target: DisplayObject, func: Function);
+    class Timer {
+        interval: number;
+        loopNum: number;
+        delayTime: number;
+        constructor(interval: number, loopNum: number, delayTime: number);
+        addEventListener(): void;
     }
     type MovieClipData = {
         name: string;
@@ -135,4 +134,25 @@ declare namespace engine {
 }
 declare namespace engine {
     let run: (canvas: HTMLCanvasElement) => DisplayObjectContainer;
+}
+declare namespace engine {
+    class EventManager {
+        targets: DisplayObject[];
+        static instance: EventManager;
+        static getInstance(): EventManager;
+    }
+    class TheEvent {
+        type: string;
+        ifCapture: boolean;
+        target: DisplayObject;
+        func: Function;
+        constructor(type: string, ifCapture: boolean, target: DisplayObject, func: Function);
+    }
+    class TouchEvent {
+        static TOUCH_MOVE: "touchMove";
+        static TOUCH_BEGIN: "touchBegin";
+        static TOUCH_END: "mouseup";
+        static TOUCH_CANCEL: "touchCancel";
+        static TOUCH_TAP: "mousedown";
+    }
 }

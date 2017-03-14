@@ -1,12 +1,12 @@
-class NPC extends egret.DisplayObjectContainer implements Observer {
+class NPC extends engine.DisplayObjectContainer implements Observer {
 
     private _id: string;
     private _name: string;
-    private _bitmap: egret.Bitmap = new egret.Bitmap;
-    private _emoji: egret.Bitmap = new egret.Bitmap;
-    private _tachie: egret.Bitmap = new egret.Bitmap;
+    private _bitmap: engine.Bitmap = new engine.Bitmap;
+    private _emoji: engine.Bitmap = new engine.Bitmap;
+    private _tachie: engine.Bitmap = new engine.Bitmap;
     public _taskList: Task[];
-    private _chara: egret.Bitmap = new egret.Bitmap;
+    private _chara: engine.Bitmap = new engine.Bitmap;
 
     //private dialog: DialogPanel = new DialogPanel();
 
@@ -21,12 +21,12 @@ class NPC extends egret.DisplayObjectContainer implements Observer {
         this.y = y;
         this._bitmap.x = 0;
         this._bitmap.y = 0;
-        this._bitmap.anchorOffsetX = this._bitmap.width / 2;
-        this._bitmap.anchorOffsetY = this._bitmap.height / 2;
-        this._tachie.anchorOffsetX = this._tachie.width / 2;
-        this._tachie.anchorOffsetY = this._tachie.height / 2;
-        this._emoji.anchorOffsetX = this._emoji.width / 2;
-        this._emoji.anchorOffsetY = this._emoji.height / 2;
+        //this._bitmap.anchorOffsetX = this._bitmap.width / 2;
+        //this._bitmap.anchorOffsetY = this._bitmap.height / 2;
+        //this._tachie.anchorOffsetX = this._tachie.width / 2;
+        //this._tachie.anchorOffsetY = this._tachie.height / 2;
+        //this._emoji.anchorOffsetX = this._emoji.width / 2;
+        //this._emoji.anchorOffsetY = this._emoji.height / 2;
         this._emoji.x = this._bitmap.x + this._bitmap.width / 2 - 5;
         this._emoji.y = this._bitmap.y - (this._bitmap.height + this._emoji.height) / 4;
 
@@ -34,8 +34,8 @@ class NPC extends egret.DisplayObjectContainer implements Observer {
         this.addChild(this._bitmap);
         this.addChild(this._emoji);
         //this.addChild(this._tachie);
-        this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onClick, this);
-        this.touchEnabled = true;
+        this.addEventListener(engine.BitmapTouchEvent.TOUCH_TAP, this.onClick, this);
+        //this.touchEnabled = true;
 
     }
 
@@ -82,7 +82,7 @@ class NPC extends egret.DisplayObjectContainer implements Observer {
         }
     }
 
-    private onClick(e: egret.TouchEvent) {
+    private onClick(e: engine.BitmapTouchEvent) {
 
         var startx: number = Math.floor((GameScene.chara._body.x) / 50);
         var starty: number = Math.floor(GameScene.chara._body.y / 50);

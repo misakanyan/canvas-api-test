@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-class Main extends egret.DisplayObjectContainer {
+class Main extends engine.DisplayObjectContainer {
 
     /**
      * 加载进度界面
@@ -110,7 +110,7 @@ class Main extends egret.DisplayObjectContainer {
         }
     }
 
-    private textfield: egret.TextField;
+    private textfield: engine.TextField;
 
     /**
      * 创建游戏场景

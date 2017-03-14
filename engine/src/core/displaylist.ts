@@ -18,7 +18,7 @@ namespace engine {
         globalMatrix: Matrix;
         relativeMatrix: Matrix;
         parent: DisplayObjectContainer;
-        eventArray: TheEvent[] = new Array();
+        eventArray: engine.TheEvent[] = new Array();
 
         draw(context2D: CanvasRenderingContext2D) {
 
@@ -42,7 +42,7 @@ namespace engine {
         }
 
         addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean) {
-            let e = new TheEvent(eventType, ifCapture, target, func);
+            let e = new engine.TheEvent(eventType, ifCapture, target, func);
             this.eventArray.push(e);
         }
 
@@ -61,7 +61,8 @@ namespace engine {
         private _width: number = -1;
         private _height: number = -1;
         private _src: string = "";
-        private isLoaded = false;
+        private isLoaded:boolean = false;
+        private _visible:boolean = true;
 
         constructor() {
 
@@ -81,6 +82,10 @@ namespace engine {
 
         set height(height: number) {
             this.height = height;
+        }
+
+        set visible(visible:boolean){
+            this.visible = visible;
         }
 
         render(context2D: CanvasRenderingContext2D) {
@@ -114,7 +119,7 @@ namespace engine {
                 var rect = new Rectangle(0, 0, this.image.width, this.image.height);
                 console.log("width:" + rect.width + " height" + rect.height);
                 if (rect.isPointInRectangle(x, y)) {
-                    var eventManager = EventManager.getInstance();
+                    var eventManager = engine.EventManager.getInstance();
                     if (this.eventArray.length != 0) {
                         eventManager.targets.push(this);
                     }
@@ -133,14 +138,19 @@ namespace engine {
         text: string = "";
         color: string = "";
         private _size: number = 18;
+        private _font:string = "微软雅黑";
 
         set size(size:number){
             this.size = size;
         }
 
+        set font(font:string){
+            this._font = font;
+        }
+
         render(context2D: CanvasRenderingContext2D) {
             context2D.fillStyle = this.color;
-            context2D.font = this.size + " 微软雅黑";
+            context2D.font = this._size + " " + this._font;
             context2D.fillText(this.text, this.x, 0);
         }
 
@@ -149,7 +159,7 @@ namespace engine {
                 var rect = new Rectangle(0, 0, this.text.length * 10, 10);
                 console.log("width:" + rect.width + " height" + rect.height);
                 if (rect.isPointInRectangle(x, y)) {
-                    var eventManager = EventManager.getInstance();
+                    var eventManager = engine.EventManager.getInstance();
                     if (this.eventArray.length != 0) {
                         eventManager.targets.push(this);
                     }
@@ -270,30 +280,24 @@ namespace engine {
     
     }*/
 
-    export class EventManager {
-        targets: DisplayObject[];
-        static instance: EventManager;
+    export class Timer{
 
-        static getInstance() {
-            if (!EventManager.instance) {
-                EventManager.instance = new EventManager();
-                EventManager.instance.targets = new Array();
+        interval:number = 1000;
+        loopNum:number = 1;
+        delayTime:number = 0;
+
+        constructor(interval:number,loopNum:number,delayTime:number){
+            this.interval = interval;
+            this.loopNum = loopNum;
+            if(arguments.length>=3){
+                this.delayTime = delayTime;
             }
-            return EventManager.instance;
         }
-    }
 
-    export class TheEvent {
-        type: string = "";
-        ifCapture: boolean = false;
-        target: DisplayObject;
-        func: Function;
-        constructor(type: string, ifCapture: boolean, target: DisplayObject, func: Function) {
-            this.type = type;
-            this.ifCapture = ifCapture;
-            this.target = target;
-            this.func = func;
+        addEventListener(){
+
         }
+
     }
 
     export type MovieClipData = {

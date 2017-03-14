@@ -179,7 +179,7 @@ var engine;
             this.render(context2D);
         };
         DisplayObject.prototype.addEventListener = function (eventType, func, target, ifCapture) {
-            var e = new TheEvent(eventType, ifCapture, target, func);
+            var e = new engine.TheEvent(eventType, ifCapture, target, func);
             this.eventArray.push(e);
         };
         DisplayObject.prototype.render = function (context2D) {
@@ -248,7 +248,7 @@ var engine;
                 var rect = new engine.Rectangle(0, 0, this.image.width, this.image.height);
                 console.log("width:" + rect.width + " height" + rect.height);
                 if (rect.isPointInRectangle(x, y)) {
-                    var eventManager = EventManager.getInstance();
+                    var eventManager = engine.EventManager.getInstance();
                     if (this.eventArray.length != 0) {
                         eventManager.targets.push(this);
                     }
@@ -268,10 +268,26 @@ var engine;
             _super.apply(this, arguments);
             this.text = "";
             this.color = "";
+            this._size = 18;
+            this._font = "微软雅黑";
         }
+        Object.defineProperty(TextField.prototype, "size", {
+            set: function (size) {
+                this.size = size;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TextField.prototype, "font", {
+            set: function (font) {
+                this._font = font;
+            },
+            enumerable: true,
+            configurable: true
+        });
         TextField.prototype.render = function (context2D) {
             context2D.fillStyle = this.color;
-            context2D.font = "18px 微软雅黑";
+            context2D.font = this._size + " " + this._font;
             context2D.fillText(this.text, this.x, 0);
         };
         TextField.prototype.hitTest = function (x, y) {
@@ -279,7 +295,7 @@ var engine;
                 var rect = new engine.Rectangle(0, 0, this.text.length * 10, 10);
                 console.log("width:" + rect.width + " height" + rect.height);
                 if (rect.isPointInRectangle(x, y)) {
-                    var eventManager = EventManager.getInstance();
+                    var eventManager = engine.EventManager.getInstance();
                     if (this.eventArray.length != 0) {
                         eventManager.targets.push(this);
                     }
@@ -393,31 +409,22 @@ var engine;
         }
     
     }*/
-    var EventManager = (function () {
-        function EventManager() {
-        }
-        EventManager.getInstance = function () {
-            if (!EventManager.instance) {
-                EventManager.instance = new EventManager();
-                EventManager.instance.targets = new Array();
+    var Timer = (function () {
+        function Timer(interval, loopNum, delayTime) {
+            this.interval = 1000;
+            this.loopNum = 1;
+            this.delayTime = 0;
+            this.interval = interval;
+            this.loopNum = loopNum;
+            if (arguments.length >= 3) {
+                this.delayTime = delayTime;
             }
-            return EventManager.instance;
-        };
-        return EventManager;
-    }());
-    engine.EventManager = EventManager;
-    var TheEvent = (function () {
-        function TheEvent(type, ifCapture, target, func) {
-            this.type = "";
-            this.ifCapture = false;
-            this.type = type;
-            this.ifCapture = ifCapture;
-            this.target = target;
-            this.func = func;
         }
-        return TheEvent;
+        Timer.prototype.addEventListener = function () {
+        };
+        return Timer;
     }());
-    engine.TheEvent = TheEvent;
+    engine.Timer = Timer;
     var MovieClip = (function (_super) {
         __extends(MovieClip, _super);
         function MovieClip(data) {
@@ -480,4 +487,38 @@ var engine;
         };
         return stage;
     };
+})(engine || (engine = {}));
+var engine;
+(function (engine) {
+    var EventManager = (function () {
+        function EventManager() {
+        }
+        EventManager.getInstance = function () {
+            if (!EventManager.instance) {
+                EventManager.instance = new EventManager();
+                EventManager.instance.targets = new Array();
+            }
+            return EventManager.instance;
+        };
+        return EventManager;
+    }());
+    engine.EventManager = EventManager;
+    var TheEvent = (function () {
+        function TheEvent(type, ifCapture, target, func) {
+            this.type = "";
+            this.ifCapture = false;
+            this.type = type;
+            this.ifCapture = ifCapture;
+            this.target = target;
+            this.func = func;
+        }
+        return TheEvent;
+    }());
+    engine.TheEvent = TheEvent;
+    var TouchEvent = (function () {
+        function TouchEvent() {
+        }
+        return TouchEvent;
+    }());
+    engine.TouchEvent = TouchEvent;
 })(engine || (engine = {}));

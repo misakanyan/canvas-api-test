@@ -1,10 +1,10 @@
-class Character extends egret.DisplayObjectContainer {
+class Character extends engine.DisplayObjectContainer {
 
     static chara:Character;
     private callback:Function;
     _main: Main;
     _stateMachine: StateMachine;
-    _body: egret.Bitmap;
+    _body: engine.Bitmap;
     _ifidle: boolean;
     _ifmove: boolean;
     _idleState: CharacterIdleState = new CharacterIdleState(this);
@@ -114,7 +114,7 @@ class Character extends egret.DisplayObjectContainer {
         var count = 0;
         //this._body.texture = RES.getRes("3_png");
         //循环执行
-        egret.Ticker.getInstance().register(() => {
+        engine.Ticker.getInstance().register(() => {
 
             if (this._ifmove) {
                 count　+= 0.2;
@@ -125,7 +125,7 @@ class Character extends egret.DisplayObjectContainer {
                 this._body.texture = RES.getRes(list[Math.floor(count)]);
             }
 
-        }, this);
+        });
 
     }
 

@@ -20,6 +20,7 @@ namespace engine {
             this.width = width;
             this.height = height;
         }
+        
         isPointInRectangle(testX: number, testY: number) {
             if (isInRange(this.x, testX, this.x + this.width) && isInRange(this.y, testY, this.y + this.height)) {
                 return true;

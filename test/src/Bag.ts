@@ -1,10 +1,10 @@
-class BagPanel extends egret.DisplayObjectContainer {
-    public bagBg:egret.Bitmap = new egret.Bitmap;
-    private items:egret.TextField[] = [new egret.TextField];
+class BagPanel extends engine.DisplayObjectContainer {
+    public bagBg:engine.Bitmap = new engine.Bitmap;
+    private items:engine.TextField[] = [new engine.TextField];
 
     constructor(){
         super();
-        this.bagBg.texture = RES.getRes("bg2_jpg");
+        this.bagBg.src = "resource/assets/bg2.jpg";
         this.bagBg.x = 0;
         this.bagBg.y = 300;
         this.bagBg.width = 200;
@@ -18,7 +18,7 @@ class BagPanel extends egret.DisplayObjectContainer {
                 this.items[i].y = 300+i*20;
                 this.items[i].size = 14;
                 this.items[i].addEventListener(egret.TouchEvent.TOUCH_TAP, this.addItem, this)
-                this.items[i].touchEnabled = true;
+                //this.items[i].touchEnabled = true;
                 this.addChild(this.items[i]);
             }
         }
@@ -31,18 +31,18 @@ class BagPanel extends egret.DisplayObjectContainer {
     }
 }
 
-class Bag extends egret.DisplayObjectContainer {
+class Bag extends engine.DisplayObjectContainer {
 
     private static instance;
 
-    private switchButton:egret.Bitmap = new egret.Bitmap;
-    private switch:egret.TextField = new egret.TextField;
+    private switchButton:engine.Bitmap = new engine.Bitmap;
+    private switch:engine.TextField = new engine.TextField;
     //private BagPanel = new BagPanel();
     private playerPanel:PlayerPanel;
     private isShow:boolean = false;
 
-    public bagBg:egret.Bitmap = new egret.Bitmap;
-    private items:egret.TextField[] = [];
+    public bagBg:engine.Bitmap = new engine.Bitmap;
+    private items:engine.TextField[] = [];
 
     private player:Player;
     private hero:Hero;
@@ -58,7 +58,7 @@ class Bag extends egret.DisplayObjectContainer {
         this.initPanel();
         console.log("init bag");
         //this.initPanel();
-        this.switchButton.texture = RES.getRes("button_jpg");
+        this.switchButton.src = "resource/assets/button.jpg";
         this.switchButton.x = 400;
         this.switchButton.y = 475;
         this.switchButton.width = 100;
@@ -67,14 +67,14 @@ class Bag extends egret.DisplayObjectContainer {
 
         this.switch.text = "打开背包";
         this.switch.size = 14;
-        this.switch.fontFamily = "微软雅黑";
-        this.switch.anchorOffsetX = this.switch.width / 2;
-        this.switch.anchorOffsetY = this.switch.height / 2;
+        this.switch.font = "微软雅黑";
+        //this.switch.anchorOffsetX = this.switch.width / 2;
+        //this.switch.anchorOffsetY = this.switch.height / 2;
         this.switch.x = 450;
         this.switch.y = 487.5;
         this.addChild(this.switch);
 
-        this.bagBg.texture = RES.getRes("panelBg_png");
+        this.bagBg.src = "resource/assets/panelBg_png";
         this.bagBg.x = 0;
         this.bagBg.y = 300;
         this.bagBg.width = 200;
@@ -165,7 +165,7 @@ class Bag extends egret.DisplayObjectContainer {
     }
 
     public addItemToBag(item:string){
-        this.items.push(new egret.TextField());
+        this.items.push(new engine.TextField());
         this.items[this.items.length - 1].text = item;
         this.items[this.items.length - 1].size = 16;
         this.items[this.items.length - 1].x = 0;
