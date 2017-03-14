@@ -22,6 +22,10 @@ namespace engine {
             // stage.hitTest(100, 100);
         }
 
+        window.onmousedown = (e) => {
+
+        }
+
         return stage;
 
     }

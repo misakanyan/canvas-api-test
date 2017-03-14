@@ -1,0 +1,84 @@
+{
+    "dialogue": [
+        {
+            "id": 1,
+            "actorName": "Lisbeth",
+            "tachie": "npc_0_tachie_png",
+            "side": "right",
+            "taskId": 0,
+            "content": "啊，桐人，你来得正好！"
+        },
+        {
+            "id": 2,
+            "actorName": "Kirito",
+            "tachie": "npc_1_tachie_png",
+            "side": "left",
+            "taskId": 0,
+            "content": "怎么了？"
+        },
+        {
+            "id": 3,
+            "actorName": "Lisbeth",
+            "tachie": "npc_0_tachie_png",
+            "side": "right",
+            "taskId": 0,
+            "content": "实际上……我昨天做了一把传说级武器……"
+        },
+        {
+            "id": 4,
+            "actorName": "Kirito",
+            "tachie": "npc_1_tachie_png",
+            "side": "left",
+            "taskId": 0,
+            "content": "喔，那不是很好嘛。"
+        },
+        {
+            "id": 5,
+            "actorName": "Lisbeth",
+            "tachie": "npc_0_tachie_png",
+            "side": "right",
+            "taskId": 0,
+            "content": "……然后想拿去卖，结果半路上被一只狼人抢走了……"
+        },
+        {
+            "id": 6,
+            "actorName": "Kirito",
+            "tachie": "npc_1_tachie_png",
+            "side": "left",
+            "taskId": 0,
+            "content": "……"
+        },
+        {
+            "id": 7,
+            "actorName": "Lisbeth",
+            "tachie": "npc_0_tachie_png",
+            "side": "right",
+            "taskId": 0,
+            "content": "……"
+        },
+        {
+            "id": 8,
+            "actorName": "Kirito",
+            "tachie": "npc_1_tachie_png",
+            "side": "left",
+            "taskId": 0,
+            "content": "好吧，我去会会那家伙。"
+        },
+        {
+            "id": 9,
+            "actorName": "Lisbeth",
+            "tachie": "npc_0_tachie_png",
+            "side": "right",
+            "taskId": 0,
+            "content": "谢谢！啊拿回来以后顺便帮我送到艾基尔那儿去吧~"
+        },
+        {
+            "id": 10,
+            "actorName": "Kirito",
+            "tachie": "npc_1_tachie_png",
+            "side": "left",
+            "taskId": 0,
+            "content": "还要免费跑腿啊……"
+        }
+    ]
+}

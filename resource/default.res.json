@@ -1,0 +1,165 @@
+{
+	"groups": [
+		{
+			"keys": "bg_jpg,egret_icon_png,description_json,chara1_png,chara2_png,chara3_png,1_png,2_png,3_png,empty_png,npc_0_png,npc_1_png,gameconfig_json,dialog_png,monster_jpg,npc_0_tachie_png,npc_1_tachie_png,dialogue_json,button_jpg,hero_0_jpg,jewel_0_jpg,weapon_0_jpg,bg2_jpg,map_png,exclamation_png,question_png,weapon_3_png,hero_1_png,panelBg_png,weapon_1_png,weapon_2_png",
+			"name": "preload"
+		}
+	],
+	"resources": [
+		{
+			"name": "bg_jpg",
+			"type": "image",
+			"url": "assets/bg.jpg"
+		},
+		{
+			"name": "egret_icon_png",
+			"type": "image",
+			"url": "assets/egret_icon.png"
+		},
+		{
+			"name": "description_json",
+			"type": "json",
+			"url": "config/description.json"
+		},
+		{
+			"name": "chara1_png",
+			"type": "image",
+			"url": "assets/chara/chara1.png"
+		},
+		{
+			"name": "chara2_png",
+			"type": "image",
+			"url": "assets/chara/chara2.png"
+		},
+		{
+			"name": "chara3_png",
+			"type": "image",
+			"url": "assets/chara/chara3.png"
+		},
+		{
+			"name": "1_png",
+			"type": "image",
+			"url": "assets/1.png"
+		},
+		{
+			"name": "2_png",
+			"type": "image",
+			"url": "assets/2.png"
+		},
+		{
+			"name": "3_png",
+			"type": "image",
+			"url": "assets/3.png"
+		},
+		{
+			"name": "empty_png",
+			"type": "image",
+			"url": "assets/empty.png"
+		},
+		{
+			"name": "npc_0_png",
+			"type": "image",
+			"url": "assets/npc_0.png"
+		},
+		{
+			"name": "npc_1_png",
+			"type": "image",
+			"url": "assets/npc_1.png"
+		},
+		{
+			"name": "gameconfig_json",
+			"type": "json",
+			"url": "config/gameconfig.json"
+		},
+		{
+			"name": "dialog_png",
+			"type": "image",
+			"url": "assets/dialog.png"
+		},
+		{
+			"name": "monster_jpg",
+			"type": "image",
+			"url": "assets/monster.jpg"
+		},
+		{
+			"name": "npc_0_tachie_png",
+			"type": "image",
+			"url": "assets/npc_0_tachie.png"
+		},
+		{
+			"name": "npc_1_tachie_png",
+			"type": "image",
+			"url": "assets/npc_1_tachie.png"
+		},
+		{
+			"name": "dialogue_json",
+			"type": "json",
+			"url": "config/dialogue.json"
+		},
+		{
+			"name": "button_jpg",
+			"type": "image",
+			"url": "assets/button.jpg"
+		},
+		{
+			"name": "hero_0_jpg",
+			"type": "image",
+			"url": "assets/hero_0.jpg"
+		},
+		{
+			"name": "jewel_0_jpg",
+			"type": "image",
+			"url": "assets/jewel_0.jpg"
+		},
+		{
+			"name": "weapon_0_jpg",
+			"type": "image",
+			"url": "assets/weapon_0.jpg"
+		},
+		{
+			"name": "bg2_jpg",
+			"type": "image",
+			"url": "assets/bg2.jpg"
+		},
+		{
+			"name": "map_png",
+			"type": "image",
+			"url": "assets/map.png"
+		},
+		{
+			"name": "exclamation_png",
+			"type": "image",
+			"url": "assets/exclamation.png"
+		},
+		{
+			"name": "question_png",
+			"type": "image",
+			"url": "assets/question.png"
+		},
+		{
+			"name": "weapon_3_png",
+			"type": "image",
+			"url": "assets/weapon_3.png"
+		},
+		{
+			"name": "hero_1_png",
+			"type": "image",
+			"url": "assets/hero_1.png"
+		},
+		{
+			"name": "panelBg_png",
+			"type": "image",
+			"url": "assets/panelBg.png"
+		},
+		{
+			"name": "weapon_1_png",
+			"type": "image",
+			"url": "assets/weapon_1.png"
+		},
+		{
+			"name": "weapon_2_png",
+			"type": "image",
+			"url": "assets/weapon_2.png"
+		}
+	]
+}

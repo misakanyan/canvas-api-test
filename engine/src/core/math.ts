@@ -29,7 +29,7 @@ namespace engine {
         }
     }
 
-    function isInRange(min: number, testNum: number, max: number) {
+    export function isInRange(min: number, testNum: number, max: number) {
         if (testNum >= min && testNum <= max) {
             return true;
         } else {

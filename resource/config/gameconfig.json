@@ -1,0 +1,55 @@
+{
+    "tasks": [
+        {
+            "id": "0",
+            "name": "被抢走的武器",
+            "type":"dialog",
+            "status": 5,
+            "desc": "莉兹贝特好像有什么事情想和你商量，去找她聊聊吧。",
+            "fromNpcId": "npc_0",
+            "toNpcId": "npc_0",
+            "current": 0,
+            "total": 10,
+            "nextTaskId":"1"
+        },
+        {
+            "id": "1",
+            "name": "夺回传说级武器",
+            "type":"killMonster",
+            "status": 0,
+            "desc": "杀死狼人，得到其身上掉落的武器，向艾基尔汇报。",
+            "fromNpcId": "npc_1",
+            "toNpcId": "npc_1",
+            "current": 0,
+            "total": 10,
+            "nextTaskId":null
+        }
+    ],
+    "npcs": [
+        {
+            "id": "npc_0",
+            "name": "莉兹贝特",
+            "bitmap": "npc_0_png",
+            "emoji": 0,
+            "tachie": "npc_0_tachie_jpg",
+            "x": 475,
+            "y": 125
+        },
+        {
+            "id": "npc_1",
+            "name": "艾基尔",
+            "bitmap": "npc_1_png",
+            "emoji": 0,
+            "tachie": "npc_1_tachie_jpg",
+            "x": 25,
+            "y": 225
+        }
+    ],
+    "monsters":[
+        {
+            "id":"0",
+            "linkTaskId":"1",
+            "image":"monster_jpg"
+        }
+    ]
+}

@@ -1,4 +1,4 @@
-window.onload = () => {
+/*window.onload = () => {
 
     var stage = new DisplayObjectContainer();
     var canvas = document.getElementById("app") as HTMLCanvasElement;
@@ -46,74 +46,75 @@ window.onload = () => {
         let dy = currentY - lastY;
         image.y+=dy;
     },this,false);*/
-    //blank.addChild(text);
+//blank.addChild(text);*/
 
-    setInterval(() => {
-        context2D.setTransform(1, 0, 0, 1, 0, 0);
-        context2D.clearRect(0, 0, canvas.width, canvas.height);
-        //text.x++;
-        //image.x++;
-        //image.y++;
-        stage.draw(context2D);
-    }, 30)
+/*setInterval(() => {
+    context2D.setTransform(1, 0, 0, 1, 0, 0);
+    context2D.clearRect(0, 0, canvas.width, canvas.height);
+    //text.x++;
+    //image.x++;
+    //image.y++;
+    stage.draw(context2D);
+}, 30)
 
-    var hitResult: DisplayObject;
-    var currentX: number;
-    var currentY: number;
-    var lastX: number;
-    var lastY: number;
-    var isMouseDown: boolean = false;
+var hitResult: DisplayObject;
+var currentX: number;
+var currentY: number;
+var lastX: number;
+var lastY: number;
+var isMouseDown: boolean = false;
 
-    window.onmousedown = (e) => {
-        console.log("mousedown");
-        isMouseDown = true;
-        let targetArray = EventManager.getInstance().targets;
-        targetArray.splice(0, targetArray.length);
-        hitResult = stage.hitTest(e.offsetX, e.offsetY);
-        console.log(hitResult);
-        currentX = e.offsetX;
-        currentY = e.offsetY;
-        console.log("hit:" + currentX + " " + currentY);
-    }
-    window.onmousemove = (e) => {
-        let targetArray = EventManager.getInstance().targets;
-        lastX = currentX;
-        lastY = currentY;
-        currentX = e.offsetX;
-        currentY = e.offsetY;
-        if (isMouseDown) {
-            for (let i = 0; i < targetArray.length; i++) {
-                for (let x of targetArray[i].eventArray) {
-                    if (x.type.match("onmove") &&
-                        x.ifCapture == true) {
-                        x.func(e);
-                        console.log("moving");
-                    }
-                }
-            }
-            for (let i = targetArray.length - 1; i >= 0; i--) {
-                for (let x of targetArray[i].eventArray) {
-                    if (x.type.match("onmove") &&
-                        x.ifCapture == false) {
-                        x.func(e);
-                    }
+window.onmousedown = (e) => {
+    console.log("mousedown");
+    isMouseDown = true;
+    let targetArray = EventManager.getInstance().targets;
+    targetArray.splice(0, targetArray.length);
+    hitResult = stage.hitTest(e.offsetX, e.offsetY);
+    console.log(hitResult);
+    currentX = e.offsetX;
+    currentY = e.offsetY;
+    console.log("hit:" + currentX + " " + currentY);
+}
+window.onmousemove = (e) => {
+    let targetArray = EventManager.getInstance().targets;
+    lastX = currentX;
+    lastY = currentY;
+    currentX = e.offsetX;
+    currentY = e.offsetY;
+    if (isMouseDown) {
+        for (let i = 0; i < targetArray.length; i++) {
+            for (let x of targetArray[i].eventArray) {
+                if (x.type.match("onmove") &&
+                    x.ifCapture == true) {
+                    x.func(e);
+                    console.log("moving");
                 }
             }
         }
-    }
-    window.onmouseup = (e) => {
-        isMouseDown = false;
-        let targetArray = EventManager.getInstance().targets;
-        targetArray.splice(0, targetArray.length);
-        let newHitRusult = stage.hitTest(e.offsetX, e.offsetY)
         for (let i = targetArray.length - 1; i >= 0; i--) {
             for (let x of targetArray[i].eventArray) {
-                if (x.type.match("onclick")&&
-                    newHitRusult == hitResult) {
+                if (x.type.match("onmove") &&
+                    x.ifCapture == false) {
                     x.func(e);
                 }
             }
         }
     }
+}
+window.onmouseup = (e) => {
+    isMouseDown = false;
+    let targetArray = EventManager.getInstance().targets;
+    targetArray.splice(0, targetArray.length);
+    let newHitRusult = stage.hitTest(e.offsetX, e.offsetY)
+    for (let i = targetArray.length - 1; i >= 0; i--) {
+        for (let x of targetArray[i].eventArray) {
+            if (x.type.match("onclick") &&
+                newHitRusult == hitResult) {
+                x.func(e);
+            }
+        }
+    }
+}
 
 };
+
