@@ -135,9 +135,22 @@ var engine;
             return Ticker.instance;
         };
         Ticker.prototype.register = function (listener) {
-            this.listeners.push(listener);
+            var x = this.listeners.indexOf(listener);
+            if (x < 0) {
+                this.listeners.push(listener);
+            }
+            else {
+                console.log("already listen");
+            }
         };
         Ticker.prototype.unregister = function (listener) {
+            var x = this.listeners.indexOf(listener);
+            if (x >= 0) {
+                this.listeners.splice(x, 1);
+            }
+            else {
+                console.log("no listener");
+            }
         };
         Ticker.prototype.notify = function (deltaTime) {
             for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
@@ -152,18 +165,20 @@ var engine;
 var engine;
 (function (engine) {
     var DisplayObject = (function () {
-        function DisplayObject() {
+        function DisplayObject(type) {
             this.x = 0;
             this.y = 0;
-            this.globalAlpha = 1;
-            this.relativeAlpha = 1;
             this.scaleX = 1;
             this.scaleY = 1;
             this.rotation = 0;
+            this.relativeAlpha = 1;
+            this.globalAlpha = 1;
+            this.relativeMatrix = new engine.Matrix();
+            this.globalMatrix = new engine.Matrix();
             this.eventArray = new Array();
+            this.type = type;
         }
-        DisplayObject.prototype.draw = function (context2D) {
-            context2D.save();
+        DisplayObject.prototype.update = function () {
             this.relativeMatrix = new engine.Matrix();
             this.relativeMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
             if (this.parent) {
@@ -174,15 +189,11 @@ var engine;
                 this.globalAlpha = this.relativeAlpha;
                 this.globalMatrix = new engine.Matrix(1, 0, 0, 1, 0, 0);
             }
-            context2D.globalAlpha = this.globalAlpha;
-            context2D.setTransform(this.relativeMatrix.m11, this.relativeMatrix.m12, this.relativeMatrix.m21, this.relativeMatrix.m22, this.relativeMatrix.dx, this.relativeMatrix.dy);
-            this.render(context2D);
         };
         DisplayObject.prototype.addEventListener = function (eventType, func, target, ifCapture) {
-            var e = new engine.TheEvent(eventType, ifCapture, target, func);
+            //if this.eventArray doesn't contain e
+            var e = new engine.TheEvent(eventType, func, target, ifCapture);
             this.eventArray.push(e);
-        };
-        DisplayObject.prototype.render = function (context2D) {
         };
         return DisplayObject;
     }());
@@ -190,76 +201,15 @@ var engine;
     var Bitmap = (function (_super) {
         __extends(Bitmap, _super);
         function Bitmap() {
-            _super.call(this);
-            this._width = -1;
-            this._height = -1;
-            this._src = "";
-            this.isLoaded = false;
-            this._visible = true; //暂无用
-            this.image = document.createElement('img');
+            _super.call(this, "Bitmap");
         }
-        Object.defineProperty(Bitmap.prototype, "src", {
-            set: function (src) {
-                this._src = src;
-                this.isLoaded = false;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Bitmap.prototype, "width", {
-            set: function (width) {
-                this.width = width;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Bitmap.prototype, "height", {
-            set: function (height) {
-                this.height = height;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Bitmap.prototype, "visible", {
-            set: function (visible) {
-                this.visible = visible;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Bitmap.prototype.render = function (context2D) {
-            var _this = this;
-            context2D.globalAlpha = this.relativeAlpha;
-            if (this.isLoaded) {
-                if (this.width == -1 || this.height == -1) {
-                    context2D.drawImage(this.image, 0, 0);
-                }
-                else {
-                    context2D.drawImage(this.image, 0, 0, this.width, this.height);
-                }
-            }
-            else {
-                this.image.src = this._src;
-                this.image.onload = function () {
-                    if (_this.width == -1 || _this.height == -1) {
-                        context2D.drawImage(_this.image, 0, 0);
-                    }
-                    else {
-                        context2D.drawImage(_this.image, 0, 0, _this.width, _this.height);
-                    }
-                    _this.isLoaded = true;
-                };
-            }
-        };
         Bitmap.prototype.hitTest = function (x, y) {
             if (this.image) {
                 var rect = new engine.Rectangle(0, 0, this.image.width, this.image.height);
-                console.log("width:" + rect.width + " height" + rect.height);
+                rect.x = rect.y = 0;
                 if (rect.isPointInRectangle(x, y)) {
                     var eventManager = engine.EventManager.getInstance();
-                    if (this.eventArray.length != 0) {
-                        eventManager.targets.push(this);
-                    }
+                    eventManager.targets.push(this);
                     return this;
                 }
                 else {
@@ -273,54 +223,74 @@ var engine;
     var TextField = (function (_super) {
         __extends(TextField, _super);
         function TextField() {
-            _super.apply(this, arguments);
+            _super.call(this, "TextField");
             this.text = "";
-            this.color = "";
-            this._size = 18;
-            this._font = "微软雅黑";
+            this._measureTextWidth = 0;
         }
-        Object.defineProperty(TextField.prototype, "size", {
-            set: function (size) {
-                this.size = size;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(TextField.prototype, "font", {
-            set: function (font) {
-                this._font = font;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        TextField.prototype.render = function (context2D) {
-            context2D.fillStyle = this.color;
-            context2D.font = this._size + " " + this._font;
-            context2D.fillText(this.text, this.x, 0);
-        };
         TextField.prototype.hitTest = function (x, y) {
-            if (this.text) {
-                var rect = new engine.Rectangle(0, 0, this.text.length * 10, 10);
-                console.log("width:" + rect.width + " height" + rect.height);
-                if (rect.isPointInRectangle(x, y)) {
-                    var eventManager = engine.EventManager.getInstance();
-                    if (this.eventArray.length != 0) {
-                        eventManager.targets.push(this);
-                    }
-                    return this;
-                }
-                else {
-                    return null;
-                }
+            var rect = new engine.Rectangle(0, 0, this._measureTextWidth, 20);
+            if (rect.isPointInRectangle(x, y)) {
+                var eventManager = engine.EventManager.getInstance();
+                eventManager.targets.push(this);
+                return this;
+            }
+            else {
+                return null;
             }
         };
         return TextField;
     }(DisplayObject));
     engine.TextField = TextField;
+    var DisplayObjectContainer = (function (_super) {
+        __extends(DisplayObjectContainer, _super);
+        function DisplayObjectContainer() {
+            _super.call(this, "DisplayObjectContainer");
+            this.array = [];
+        }
+        DisplayObjectContainer.prototype.update = function () {
+            _super.prototype.update.call(this);
+            for (var _i = 0, _a = this.array; _i < _a.length; _i++) {
+                var displayobject = _a[_i];
+                displayobject.update();
+            }
+        };
+        DisplayObjectContainer.prototype.addChild = function (child) {
+            var x = this.array.indexOf(child);
+            if (x < 0) {
+                this.array.push(child);
+                child.parent = this;
+            }
+            else {
+            }
+        };
+        DisplayObjectContainer.prototype.removeChild = function (child) {
+            var x = this.array.indexOf(child);
+            if (x >= 0) {
+                this.array.splice(x, 1);
+            }
+        };
+        DisplayObjectContainer.prototype.hitTest = function (x, y) {
+            for (var i = this.array.length - 1; i >= 0; i--) {
+                var child = this.array[i];
+                var point = new engine.Point(x, y);
+                var invertChildLocalMatrix = engine.invertMatrix(child.relativeMatrix);
+                var pointBaseOnChild = engine.pointAppendMatrix(point, invertChildLocalMatrix);
+                var hitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
+                if (hitTestResult) {
+                    var eventManager = engine.EventManager.getInstance();
+                    eventManager.targets.push(this);
+                    return hitTestResult;
+                }
+            }
+            return null;
+        };
+        return DisplayObjectContainer;
+    }(DisplayObject));
+    engine.DisplayObjectContainer = DisplayObjectContainer;
     var Shape = (function (_super) {
         __extends(Shape, _super);
         function Shape() {
-            _super.call(this);
+            _super.call(this, "Shape");
             this.fillColor = "#000000";
             this.alpha = 1;
         }
@@ -360,79 +330,19 @@ var engine;
         };
         //let a = new engine.Rectangle();
         Shape.prototype.hitTest = function (x, y) {
+            var rect = new engine.Rectangle(0, 0, this.width, this.height);
+            if (rect.isPointInRectangle(x, y)) {
+                var eventManager = engine.EventManager.getInstance();
+                eventManager.targets.push(this);
+                return this;
+            }
+            else {
+                return null;
+            }
         };
         return Shape;
     }(DisplayObject));
     engine.Shape = Shape;
-    var DisplayObjectContainer = (function (_super) {
-        __extends(DisplayObjectContainer, _super);
-        function DisplayObjectContainer() {
-            _super.apply(this, arguments);
-            this.array = [];
-        }
-        DisplayObjectContainer.prototype.render = function (context2D) {
-            for (var _i = 0, _a = this.array; _i < _a.length; _i++) {
-                var Drawable = _a[_i];
-                Drawable.draw(context2D);
-            }
-        };
-        DisplayObjectContainer.prototype.addChild = function (child) {
-            if (this.array.indexOf(child) == -1) {
-                this.array.push(child);
-                child.parent = this;
-            }
-        };
-        DisplayObjectContainer.prototype.hitTest = function (x, y) {
-            for (var i = this.array.length - 1; i >= 0; i--) {
-                console.log("length:" + this.array.length);
-                var target = this.array[i];
-                console.log("target:" + target);
-                var point = new engine.Point(x, y);
-                var invertChildLocalMatrix = engine.invertMatrix(target.relativeMatrix);
-                var pointBaseOnChild = engine.pointAppendMatrix(point, invertChildLocalMatrix);
-                var hitTestResult = target.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
-                console.log("pointBaseOnChild.x:" + pointBaseOnChild.x + " pointBaseOnChild.y" + pointBaseOnChild.y);
-                if (hitTestResult) {
-                    return hitTestResult;
-                }
-                else {
-                    return null;
-                }
-            }
-        };
-        return DisplayObjectContainer;
-    }(DisplayObject));
-    engine.DisplayObjectContainer = DisplayObjectContainer;
-    /*export class Rectangle {
-    
-        x = 0;
-        y = 0;
-        width = 1;
-        height = 1;
-        isPointInRectangle(point: Point) {
-            let rect = this;
-            if (point.x < rect.width + rect.x && point.y < rect.height + rect.y && point.x < rect.x && point.y > rect.y) {
-                return true;
-            }
-        }
-    
-    }*/
-    var Timer = (function () {
-        function Timer(interval, loopNum, delayTime) {
-            this.interval = 1000;
-            this.loopNum = 1;
-            this.delayTime = 0;
-            this.interval = interval;
-            this.loopNum = loopNum;
-            if (arguments.length >= 3) {
-                this.delayTime = delayTime;
-            }
-        }
-        Timer.prototype.addEventListener = function () {
-        };
-        return Timer;
-    }());
-    engine.Timer = Timer;
     var MovieClip = (function (_super) {
         __extends(MovieClip, _super);
         function MovieClip(data) {
@@ -468,13 +378,42 @@ var engine;
         MovieClip.TOTAL_FRAME = 10;
         return MovieClip;
     }(Bitmap));
-    engine.MovieClip = MovieClip;
+    var Timer = (function () {
+        function Timer(interval, loopNum, delayTime) {
+            this.interval = 1000;
+            this.loopNum = 1;
+            this.delayTime = 0;
+            this.interval = interval;
+            this.loopNum = loopNum;
+            if (arguments.length >= 3) {
+                this.delayTime = delayTime;
+            }
+        }
+        Timer.prototype.addEventListener = function () {
+        };
+        return Timer;
+    }());
+    engine.Timer = Timer;
+    var Tween = (function () {
+        function Tween() {
+            this.totalStep = 10;
+            this.currentStep = 0;
+        }
+        Tween.prototype.get = function (target) {
+            this.target = target;
+        };
+        Tween.prototype.to = function (x, y) {
+        };
+        return Tween;
+    }());
+    engine.Tween = Tween;
 })(engine || (engine = {}));
 var engine;
 (function (engine) {
     engine.run = function (canvas) {
         var stage = new engine.DisplayObjectContainer();
         var context2D = canvas.getContext("2d");
+        var render = new CanvasRenderer(stage, context2D);
         var lastNow = Date.now();
         var frameHandler = function () {
             var now = Date.now();
@@ -482,19 +421,131 @@ var engine;
             engine.Ticker.getInstance().notify(deltaTime);
             context2D.clearRect(0, 0, 400, 400);
             context2D.save();
-            stage.draw(context2D);
+            stage.update();
+            render.render();
             context2D.restore();
             lastNow = now;
             window.requestAnimationFrame(frameHandler);
         };
         window.requestAnimationFrame(frameHandler);
-        window.onmousedown = function () {
-            // stage.hitTest(100, 100);
-        };
+        var hitResult;
+        var currentX;
+        var currentY;
+        var lastX;
+        var lastY;
+        var isMouseDown = false;
         window.onmousedown = function (e) {
+            isMouseDown = true;
+            var targetArray = engine.EventManager.getInstance().targets;
+            targetArray.splice(0, targetArray.length);
+            hitResult = stage.hitTest(e.offsetX, e.offsetY);
+            currentX = e.offsetX;
+            currentY = e.offsetY;
+        };
+        window.onmousemove = function (e) {
+            var targetArray = engine.EventManager.getInstance().targets;
+            lastX = currentX;
+            lastY = currentY;
+            currentX = e.offsetX;
+            currentY = e.offsetY;
+            if (isMouseDown) {
+                for (var i = 0; i < targetArray.length; i++) {
+                    for (var _i = 0, _a = targetArray[i].eventArray; _i < _a.length; _i++) {
+                        var x = _a[_i];
+                        if (x.type.match("onmousemove") &&
+                            x.ifCapture == true) {
+                            x.func(e);
+                        }
+                    }
+                }
+                for (var i = targetArray.length - 1; i >= 0; i--) {
+                    for (var _b = 0, _c = targetArray[i].eventArray; _b < _c.length; _b++) {
+                        var x = _c[_b];
+                        if (x.type.match("onmousemove") &&
+                            x.ifCapture == false) {
+                            x.func(e);
+                        }
+                    }
+                }
+            }
+        };
+        window.onmouseup = function (e) {
+            isMouseDown = false;
+            var targetArray = engine.EventManager.getInstance().targets;
+            targetArray.splice(0, targetArray.length);
+            var newHitRusult = stage.hitTest(e.offsetX, e.offsetY);
+            for (var i = 0; i < targetArray.length; i++) {
+                for (var _i = 0, _a = targetArray[i].eventArray; _i < _a.length; _i++) {
+                    var x = _a[_i];
+                    if (x.type.match("onclick") &&
+                        newHitRusult == hitResult &&
+                        x.ifCapture == true) {
+                        x.func(e);
+                    }
+                }
+            }
+            for (var i = targetArray.length - 1; i >= 0; i--) {
+                for (var _b = 0, _c = targetArray[i].eventArray; _b < _c.length; _b++) {
+                    var x = _c[_b];
+                    if (x.type.match("onclick") &&
+                        newHitRusult == hitResult &&
+                        x.ifCapture == false) {
+                        x.func(e);
+                    }
+                }
+            }
         };
         return stage;
     };
+    var CanvasRenderer = (function () {
+        function CanvasRenderer(stage, context2D) {
+            this.stage = stage;
+            this.context2D = context2D;
+        }
+        CanvasRenderer.prototype.render = function () {
+            var stage = this.stage;
+            var context2D = this.context2D;
+            this.renderContainer(stage);
+        };
+        CanvasRenderer.prototype.renderContainer = function (container) {
+            for (var _i = 0, _a = container.array; _i < _a.length; _i++) {
+                var child = _a[_i];
+                var context2D = this.context2D;
+                context2D.globalAlpha = child.globalAlpha;
+                var m = child.globalMatrix;
+                context2D.setTransform(m.m11, m.m12, m.m21, m.m22, m.dx, m.dy);
+                if (child.type == "Bitmap") {
+                    this.renderBitmap(child);
+                }
+                else if (child.type == "TextField") {
+                    this.renderTextField(child);
+                }
+                else if (child.type == "DisplayObjectContainer") {
+                    this.renderContainer(child);
+                }
+            }
+        };
+        CanvasRenderer.prototype.renderBitmap = function (bitmap) {
+            var _this = this;
+            if (bitmap.image == null) {
+                var img_1 = new Image();
+                img_1.src = bitmap.texture;
+                img_1.onload = function () {
+                    _this.context2D.drawImage(img_1, 0, 0);
+                    bitmap.image = img_1;
+                };
+            }
+            else {
+                bitmap.image.src = bitmap.texture;
+                this.context2D.drawImage(bitmap.image, 0, 0);
+            }
+        };
+        CanvasRenderer.prototype.renderTextField = function (textField) {
+            this.context2D.fillText(textField.text, 0, 10);
+            textField._measureTextWidth = this.context2D.measureText(textField.text).width;
+        };
+        return CanvasRenderer;
+    }());
 })(engine || (engine = {}));
 var engine;
 (function (engine) {
@@ -502,23 +553,26 @@ var engine;
         function EventManager() {
         }
         EventManager.getInstance = function () {
-            if (!EventManager.instance) {
-                EventManager.instance = new EventManager();
-                EventManager.instance.targets = new Array();
+            if (EventManager.eventManager == null) {
+                EventManager.eventManager = new EventManager();
+                EventManager.eventManager.targets = new Array();
+                return EventManager.eventManager;
             }
-            return EventManager.instance;
+            else {
+                return EventManager.eventManager;
+            }
         };
         return EventManager;
     }());
     engine.EventManager = EventManager;
     var TheEvent = (function () {
-        function TheEvent(type, ifCapture, target, func) {
+        function TheEvent(eventType, func, target, ifCapture) {
             this.type = "";
             this.ifCapture = false;
-            this.type = type;
+            this.type = eventType;
             this.ifCapture = ifCapture;
-            this.target = target;
             this.func = func;
+            this.target = target;
         }
         return TheEvent;
     }());

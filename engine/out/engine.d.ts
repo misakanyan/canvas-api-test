@@ -45,49 +45,45 @@ declare namespace engine {
 }
 declare namespace engine {
     interface Drawable {
-        draw(context2D: CanvasRenderingContext2D): any;
     }
     abstract class DisplayObject implements Drawable {
         x: number;
         y: number;
-        globalAlpha: number;
-        relativeAlpha: number;
         scaleX: number;
         scaleY: number;
         rotation: number;
-        globalMatrix: Matrix;
+        relativeAlpha: number;
+        globalAlpha: number;
         relativeMatrix: Matrix;
+        globalMatrix: Matrix;
         parent: DisplayObjectContainer;
-        eventArray: engine.TheEvent[];
-        draw(context2D: CanvasRenderingContext2D): void;
-        addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture?: boolean): void;
-        render(context2D: CanvasRenderingContext2D): void;
-        abstract hitTest(x: number, y: number): any;
+        touchEnabled: boolean;
+        type: string;
+        eventArray: TheEvent[];
+        constructor(type: string);
+        update(): void;
+        addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean): void;
+        abstract hitTest(x: number, y: number): DisplayObject;
     }
     class Bitmap extends DisplayObject {
         image: HTMLImageElement;
-        private _width;
-        private _height;
-        private _src;
-        private isLoaded;
-        private _visible;
+        texture: string;
         constructor();
-        src: string;
-        width: number;
-        height: number;
-        visible: boolean;
-        render(context2D: CanvasRenderingContext2D): void;
         hitTest(x: number, y: number): this;
     }
     class TextField extends DisplayObject {
         text: string;
-        color: string;
-        private _size;
-        private _font;
-        size: number;
-        font: string;
-        render(context2D: CanvasRenderingContext2D): void;
+        constructor();
+        _measureTextWidth: number;
         hitTest(x: number, y: number): this;
+    }
+    class DisplayObjectContainer extends DisplayObject {
+        array: DisplayObject[];
+        constructor();
+        update(): void;
+        addChild(child: DisplayObject): void;
+        removeChild(child: DisplayObject): void;
+        hitTest(x: any, y: any): DisplayObject;
     }
     class Shape extends DisplayObject {
         width: number;
@@ -99,13 +95,7 @@ declare namespace engine {
         endFill(): void;
         drawRect(x: number, y: number, width: number, height: number, context2D: CanvasRenderingContext2D): void;
         render(context2D: CanvasRenderingContext2D): void;
-        hitTest(x: number, y: number): void;
-    }
-    class DisplayObjectContainer extends DisplayObject implements Drawable {
-        array: DisplayObject[];
-        render(context2D: CanvasRenderingContext2D): void;
-        addChild(child: DisplayObject): void;
-        hitTest(x: any, y: any): any;
+        hitTest(x: number, y: number): this;
     }
     class Timer {
         interval: number;
@@ -114,24 +104,12 @@ declare namespace engine {
         constructor(interval: number, loopNum: number, delayTime: number);
         addEventListener(): void;
     }
-    type MovieClipData = {
-        name: string;
-        frames: MovieClipFrameData[];
-    };
-    type MovieClipFrameData = {
-        "image": string;
-    };
-    class MovieClip extends Bitmap {
-        private advancedTime;
-        private static FRAME_TIME;
-        private static TOTAL_FRAME;
-        private currentFrameIndex;
-        private data;
-        constructor(data: MovieClipData);
-        ticker: (deltaTime: any) => void;
-        play(): void;
-        stop(): void;
-        setMovieClipData(data: MovieClipData): void;
+    class Tween {
+        target: any;
+        totalStep: number;
+        currentStep: number;
+        get(target: any): void;
+        to(x: number, y: number): void;
     }
 }
 declare namespace engine {
@@ -140,7 +118,8 @@ declare namespace engine {
 declare namespace engine {
     class EventManager {
         targets: DisplayObject[];
-        static instance: EventManager;
+        static eventManager: EventManager;
+        constructor();
         static getInstance(): EventManager;
     }
     class TheEvent {
@@ -148,7 +127,7 @@ declare namespace engine {
         ifCapture: boolean;
         target: DisplayObject;
         func: Function;
-        constructor(type: string, ifCapture: boolean, target: DisplayObject, func: Function);
+        constructor(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean);
     }
     class TouchEvent {
         static TOUCH_MOVE: "touchMove";

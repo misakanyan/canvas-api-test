@@ -1,28 +1,32 @@
-namespace engine{
+namespace engine {
 
     export class EventManager {
         targets: DisplayObject[];
-        static instance: EventManager;
+        static eventManager: EventManager;
+        constructor() {
 
+        }
         static getInstance() {
-            if (!EventManager.instance) {
-                EventManager.instance = new EventManager();
-                EventManager.instance.targets = new Array();
+            if (EventManager.eventManager == null) {
+                EventManager.eventManager = new EventManager();
+                EventManager.eventManager.targets = new Array();
+                return EventManager.eventManager;
+            } else {
+                return EventManager.eventManager;
             }
-            return EventManager.instance;
         }
     }
 
     export class TheEvent {
-        type: string = "";
-        ifCapture: boolean = false;
+        type = "";
+        ifCapture = false;
         target: DisplayObject;
         func: Function;
-        constructor(type: string, ifCapture: boolean, target: DisplayObject, func: Function) {
-            this.type = type;
+        constructor(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean) {
+            this.type = eventType;
             this.ifCapture = ifCapture;
-            this.target = target;
             this.func = func;
+            this.target = target;
         }
     }
 

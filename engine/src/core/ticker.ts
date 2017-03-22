@@ -16,11 +16,21 @@ namespace engine {
         listeners: Ticker_Listener_Type[] = [];
 
         register(listener: Ticker_Listener_Type) {
-            this.listeners.push(listener);
+            let x=this.listeners.indexOf(listener);
+            if(x<0){
+                this.listeners.push(listener);
+            }else{
+                console.log("already listen");
+            }
         }
 
         unregister(listener: Ticker_Listener_Type) {
-
+            let x=this.listeners.indexOf(listener);
+            if(x>=0){
+                this.listeners.splice(x,1);
+            }else{
+                console.log("no listener");
+            }
         }
 
         notify(deltaTime: number) {

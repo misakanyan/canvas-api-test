@@ -9,6 +9,6 @@
 		"src/core/ticker.ts",
 		"src/core/displaylist.ts",
 		"src/platforms/browser/driver.ts",
-		"src/core/EventManager.ts"
+		"src/core/eventManager.ts"
 	]
 }

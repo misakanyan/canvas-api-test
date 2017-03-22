@@ -120,7 +120,7 @@ class Tile extends engine.DisplayObjectContainer {
         this.data = data;
         var bitmap = new engine.Bitmap;
         var size: number = 50;
-        bitmap.src = "resource/assets/" + data.image;
+        bitmap.texture = "resource/assets/" + data.image;
         bitmap.x = (data.x - 1) * size;
         bitmap.y = (data.y - 1) * size;
         this.addChild(bitmap);
@@ -160,7 +160,7 @@ class TileMap extends engine.DisplayObjectContainer {
             this.addChild(tile);
             //console.log("init success")
         }
-        this.map.src = "resource/assets/map.png";
+        this.map.texture = "resource/assets/map.png";
         this.addChild(this.map);
         //this.touchEnabled = true;
 
