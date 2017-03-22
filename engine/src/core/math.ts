@@ -1,4 +1,23 @@
 namespace engine {
+    export class Rectangle {
+        x = 0;
+        y = 0;
+        width = 1;
+        height = 1;
+
+        isPointInRectangle(point: Point) {
+            let rect = this;
+            if (point.x < rect.width + rect.x &&
+                point.y < rect.height + rect.y &&
+                point.x > rect.x &&
+                point.y > rect.y) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
 
     export class Point {
         x: number;
@@ -6,27 +25,6 @@ namespace engine {
         constructor(x: number, y: number) {
             this.x = x;
             this.y = y;
-        }
-    }
-
-    export class Rectangle {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        constructor(x: number, y: number, width: number, height: number) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-        
-        isPointInRectangle(testX: number, testY: number) {
-            if (isInRange(this.x, testX, this.x + this.width) && isInRange(this.y, testY, this.y + this.height)) {
-                return true;
-            } else {
-                return false;
-            }
         }
     }
 
@@ -39,8 +37,8 @@ namespace engine {
     }
 
     export function pointAppendMatrix(point: Point, m: Matrix): Point {
-        var x = m.m11 * point.x + m.m12 * point.y + m.dx;
-        var y = m.m21 * point.x + m.m22 * point.y + m.dy;
+        var x = m.a * point.x + m.c * point.y + m.tx;
+        var y = m.b * point.x + m.d * point.y + m.ty;
         return new Point(x, y);
 
     }
@@ -52,12 +50,12 @@ namespace engine {
     export function invertMatrix(m: Matrix): Matrix {
 
 
-        var a = m.m11;
-        var b = m.m21;
-        var c = m.m12;
-        var d = m.m22;
-        var tx = m.dx;
-        var ty = m.dy;
+        var a = m.a;
+        var b = m.b;
+        var c = m.c;
+        var d = m.d;
+        var tx = m.tx;
+        var ty = m.ty;
 
         var determinant = a * d - b * c;
         var result = new Matrix(1, 0, 0, 1, 0, 0);
@@ -66,12 +64,12 @@ namespace engine {
         }
 
         determinant = 1 / determinant;
-        var k = result.m11 = d * determinant;
-        b = result.m21 = -b * determinant;
-        c = result.m12 = -c * determinant;
-        d = result.m22 = a * determinant;
-        result.dx = -(k * tx + c * ty);
-        result.dy = -(b * tx + d * ty);
+        var k = result.a = d * determinant;
+        b = result.b = -b * determinant;
+        c = result.c = -c * determinant;
+        d = result.d = a * determinant;
+        result.tx = -(k * tx + c * ty);
+        result.ty = -(b * tx + d * ty);
         return result;
 
     }
@@ -79,12 +77,12 @@ namespace engine {
     export function matrixAppendMatrix(m1: Matrix, m2: Matrix): Matrix {
 
         var result = new Matrix();
-        result.m11 = m1.m11 * m2.m11 + m1.m21 * m2.m12;
-        result.m21 = m1.m11 * m2.m21 + m1.m21 * m2.m22;
-        result.m12 = m2.m11 * m1.m12 + m2.m12 * m1.m22;
-        result.m22 = m2.m21 * m1.m12 + m1.m22 * m2.m22;
-        result.dx = m2.m11 * m1.dx + m2.m12 * m1.dy + m2.dx;
-        result.dy = m2.m21 * m1.dx + m2.m22 * m1.dy + m2.dy;
+        result.a = m1.a * m2.a + m1.b * m2.c;
+        result.b = m1.a * m2.b + m1.b * m2.d;
+        result.c = m2.a * m1.c + m2.c * m1.d;
+        result.d = m2.b * m1.c + m1.d * m2.d;
+        result.tx = m2.a * m1.tx + m2.c * m1.ty + m2.tx;
+        result.ty = m2.b * m1.tx + m2.d * m1.ty + m2.ty;
         return result;
     }
 
@@ -97,43 +95,43 @@ namespace engine {
 
     export class Matrix {
 
-        constructor(m11: number = 1, m21: number = 0, m12: number = 0, m22: number = 1, dx: number = 0, dy: number = 0) {
-            this.m11 = m11;
-            this.m21 = m21;
-            this.m12 = m12;
-            this.m22 = m22;
-            this.dx = dx;
-            this.dy = dy;
+        constructor(a: number = 1, b: number = 0, c: number = 0, d: number = 1, tx: number = 0, ty: number = 0) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+            this.tx = tx;
+            this.ty = ty;
         }
 
-        public m11: number;
+        public a: number;
 
-        public m21: number;
+        public b: number;
 
-        public m12: number;
+        public c: number;
 
-        public m22: number;
+        public d: number;
 
-        public dx: number;
+        public tx: number;
 
-        public dy: number;
+        public ty: number;
 
         public toString(): string {
-            return "(a=" + this.m11 + ", b=" + this.m21 + ", c=" + this.m12 + ", d=" + this.m22 + ", tx=" + this.dx + ", ty=" + this.dy + ")";
+            return "(a=" + this.a + ", b=" + this.b + ", c=" + this.c + ", d=" + this.d + ", tx=" + this.tx + ", ty=" + this.ty + ")";
         }
 
         updateFromDisplayObject(x: number, y: number, scaleX: number, scaleY: number, rotation: number) {
-            this.dx = x;
-            this.dy = y;
+            this.tx = x;
+            this.ty = y;
             var skewX, skewY;
             skewX = skewY = rotation / 180 * Math.PI;
 
             var u = Math.cos(skewX);
             var v = Math.sin(skewX);
-            this.m11 = Math.cos(skewY) * scaleX;
-            this.m21 = Math.sin(skewY) * scaleX;
-            this.m12 = -v * scaleY;
-            this.m22 = u * scaleY;
+            this.a = Math.cos(skewY) * scaleX;
+            this.b = Math.sin(skewY) * scaleX;
+            this.c = -v * scaleY;
+            this.d = u * scaleY;
 
         }
     }

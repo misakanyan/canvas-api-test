@@ -1,16 +1,15 @@
 declare namespace engine {
-    class Point {
-        x: number;
-        y: number;
-        constructor(x: number, y: number);
-    }
     class Rectangle {
         x: number;
         y: number;
         width: number;
         height: number;
-        constructor(x: number, y: number, width: number, height: number);
-        isPointInRectangle(testX: number, testY: number): boolean;
+        isPointInRectangle(point: Point): boolean;
+    }
+    class Point {
+        x: number;
+        y: number;
+        constructor(x: number, y: number);
     }
     function isInRange(min: number, testNum: number, max: number): boolean;
     function pointAppendMatrix(point: Point, m: Matrix): Point;
@@ -21,13 +20,13 @@ declare namespace engine {
     function invertMatrix(m: Matrix): Matrix;
     function matrixAppendMatrix(m1: Matrix, m2: Matrix): Matrix;
     class Matrix {
-        constructor(m11?: number, m21?: number, m12?: number, m22?: number, dx?: number, dy?: number);
-        m11: number;
-        m21: number;
-        m12: number;
-        m22: number;
-        dx: number;
-        dy: number;
+        constructor(a?: number, b?: number, c?: number, d?: number, tx?: number, ty?: number);
+        a: number;
+        b: number;
+        c: number;
+        d: number;
+        tx: number;
+        ty: number;
         toString(): string;
         updateFromDisplayObject(x: number, y: number, scaleX: number, scaleY: number, rotation: number): void;
     }
@@ -44,100 +43,103 @@ declare namespace engine {
     }
 }
 declare namespace engine {
+    type MovieClipData = {
+        name: string;
+        frames: MovieClipFrameData[];
+    };
+    type MovieClipFrameData = {
+        "image": string;
+    };
+    enum TouchType {
+        TOUCH_TAP = 0,
+        TOUCH_MOVE = 1,
+        TOUCH_DRAG = 2,
+    }
     interface Drawable {
+        update(): any;
     }
     abstract class DisplayObject implements Drawable {
+        type: string;
         x: number;
         y: number;
         scaleX: number;
         scaleY: number;
         rotation: number;
+        width: number;
+        height: number;
         relativeAlpha: number;
         globalAlpha: number;
         relativeMatrix: Matrix;
         globalMatrix: Matrix;
-        parent: DisplayObjectContainer;
+        parent: DisplayObject;
         touchEnabled: boolean;
-        type: string;
-        eventArray: TheEvent[];
         constructor(type: string);
         update(): void;
-        addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean): void;
-        abstract hitTest(x: number, y: number): DisplayObject;
+        abstract hitTest(x: any, y: any): DisplayObject;
+        touchType: TouchType[];
+        function: Function[];
+        useCapture: boolean[];
+        isMouseDown: boolean;
+        addEventListener(_type: TouchType, listener: (e: MouseEvent) => void, _useCapture?: boolean): void;
+        dispatchEvent(e: any): void;
     }
-    class Bitmap extends DisplayObject {
-        image: HTMLImageElement;
-        texture: string;
+    class DisplayObjectContainer extends DisplayObject {
+        children: DisplayObject[];
         constructor();
-        hitTest(x: number, y: number): this;
+        update(): void;
+        addChild(obj: DisplayObject): void;
+        removeChild(obj: DisplayObject): void;
+        hitTest(x: any, y: any): any;
     }
     class TextField extends DisplayObject {
         text: string;
+        parent: DisplayObjectContainer;
+        textColor: string;
+        private _measureTextWidth;
         constructor();
-        _measureTextWidth: number;
         hitTest(x: number, y: number): this;
     }
-    class DisplayObjectContainer extends DisplayObject {
-        array: DisplayObject[];
+    class Shape extends DisplayObjectContainer {
+        graphics: Graphics;
         constructor();
-        update(): void;
-        addChild(child: DisplayObject): void;
-        removeChild(child: DisplayObject): void;
-        hitTest(x: any, y: any): DisplayObject;
     }
-    class Shape extends DisplayObject {
-        width: number;
-        height: number;
+    class Graphics extends DisplayObject {
         fillColor: string;
         alpha: number;
-        constructor();
-        beginFill(fillColor: string, alpha: number): void;
+        globalAlpha: number;
+        strokeColor: string;
+        lineWidth: number;
+        lineColor: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        context: CanvasRenderingContext2D;
+        hitTest(x: number, y: number): this;
+        beginFill(color: any, alpha: any): void;
         endFill(): void;
-        drawRect(x: number, y: number, width: number, height: number, context2D: CanvasRenderingContext2D): void;
-        render(context2D: CanvasRenderingContext2D): void;
+        drawRect(x1: any, y1: any, x2: any, y2: any): void;
+        clear(): void;
+    }
+    class Bitmap extends DisplayObject {
+        img: HTMLImageElement;
+        parent: DisplayObjectContainer;
+        constructor();
         hitTest(x: number, y: number): this;
     }
-    class Timer {
-        interval: number;
-        loopNum: number;
-        delayTime: number;
-        constructor(interval: number, loopNum: number, delayTime: number);
-        addEventListener(): void;
-    }
-    class Tween {
-        target: any;
-        totalStep: number;
-        currentStep: number;
-        get(target: any): void;
-        to(x: number, y: number): void;
+    class MovieClip extends Bitmap {
+        private advancedTime;
+        private static FRAME_TIME;
+        private static TOTAL_FRAME;
+        private currentFrameIndex;
+        private data;
+        constructor(data: MovieClipData);
+        ticker: (deltaTime: any) => void;
+        play(): void;
+        stop(): void;
+        setMovieClipData(data: MovieClipData): void;
     }
 }
 declare namespace engine {
     let run: (canvas: HTMLCanvasElement) => DisplayObjectContainer;
-}
-declare namespace engine {
-    class EventManager {
-        targets: DisplayObject[];
-        static eventManager: EventManager;
-        constructor();
-        static getInstance(): EventManager;
-    }
-    class TheEvent {
-        type: string;
-        ifCapture: boolean;
-        target: DisplayObject;
-        func: Function;
-        constructor(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean);
-    }
-    class TouchEvent {
-        static TOUCH_MOVE: "touchMove";
-        static TOUCH_BEGIN: "touchBegin";
-        static TOUCH_END: "mouseup";
-        static TOUCH_CANCEL: "touchCancel";
-        static TOUCH_TAP: "mousedown";
-    }
-    class TimerEvent {
-        static TIMER: "timerStart";
-        static TIMER_COMPLETE: "timerComplete";
-    }
 }

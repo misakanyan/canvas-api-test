@@ -3,8 +3,8 @@ namespace engine {
 
         var stage = new DisplayObjectContainer();
         let context2D = canvas.getContext("2d");
-        let render=new CanvasRenderer(stage,context2D);
         let lastNow = Date.now();
+        let renderer = new CanvasRenderer(stage, context2D);
         let frameHandler = () => {
             let now = Date.now();
             let deltaTime = now - lastNow;
@@ -12,7 +12,7 @@ namespace engine {
             context2D.clearRect(0, 0, 400, 400);
             context2D.save();
             stage.update();
-            render.render();
+            renderer.render();
             context2D.restore();
             lastNow = now;
             window.requestAnimationFrame(frameHandler);
@@ -20,71 +20,59 @@ namespace engine {
 
         window.requestAnimationFrame(frameHandler);
 
-        let hitResult: DisplayObject;
-        let currentX: number;
-        let currentY: number;
-        let lastX: number;
-        let lastY: number;
-        let isMouseDown = false;
+        //鼠标点击
+    window.onmousedown = (e) => {//onclick buyong youwenti  buyaoyong
+        let x = e.offsetX;
+        let y = e.offsetY;
+        let type = "mousedown";//mousemove
+        let target: DisplayObject = stage.hitTest(x, y);
+        let result = target;
+        console.log(result)
+        if (result) {
+            result.dispatchEvent(e);
+            while (result.parent) {
+                let currentTarget = result.parent;
+                let e = { type, target, currentTarget };
+                result = result.parent;
+                result.dispatchEvent(e);
+            }
+        }
+    }
+    window.onmousemove = (e) => {
+        let x = e.offsetX;
+        let y = e.offsetY;
+        let type = "mousemove";
+        let target: DisplayObject = stage.hitTest(x, y);
+        let result = target;
+        //console.log(result)
+        if (result) {
+            result.dispatchEvent(e);
+            while (result.parent) {
+                let currentTarget = result.parent;
+                let e = { type, target, currentTarget };
+                result = result.parent;
+                result.dispatchEvent(e);
+            }
+        }
+    }
 
-        window.onmousedown = (e) => {
-            isMouseDown = true;
-            let targetArray = EventManager.getInstance().targets;
-            targetArray.splice(0, targetArray.length);
-            hitResult = stage.hitTest(e.offsetX, e.offsetY);
-            currentX = e.offsetX;
-            currentY = e.offsetY;
-        }
-
-        window.onmousemove = (e) => {
-            let targetArray = EventManager.getInstance().targets;
-            lastX = currentX;
-            lastY = currentY;
-            currentX = e.offsetX;
-            currentY = e.offsetY;
-            if (isMouseDown) {
-                for (let i = 0; i < targetArray.length; i++) {
-                    for (let x of targetArray[i].eventArray) {
-                        if (x.type.match("onmousemove") &&
-                            x.ifCapture == true) {
-                            x.func(e);
-                        }
-                    }
-                }
-                for (let i = targetArray.length - 1; i >= 0; i--) {
-                    for (let x of targetArray[i].eventArray) {
-                        if (x.type.match("onmousemove") &&
-                            x.ifCapture == false) {
-                            x.func(e);
-                        }
-                    }
-                }
+    window.onmouseup = e => {
+        let x = e.offsetX;
+        let y = e.offsetY;
+        let type = "mouseup";
+        let target: DisplayObject = stage.hitTest(x, y);
+        let result = target;
+        //console.log(result)
+        if (result) {
+            result.dispatchEvent(e);
+            while (result.parent) {
+                let currentTarget = result.parent;
+                let e = { type, target, currentTarget };
+                result = result.parent;
+                result.dispatchEvent(e);
             }
         }
-        window.onmouseup = (e) => {
-            isMouseDown = false;
-            let targetArray = EventManager.getInstance().targets;
-            targetArray.splice(0, targetArray.length);
-            let newHitRusult = stage.hitTest(e.offsetX, e.offsetY);
-            for (let i = 0; i < targetArray.length; i++) {
-                    for (let x of targetArray[i].eventArray) {
-                        if (x.type.match("onclick") &&
-                            newHitRusult == hitResult &&
-                            x.ifCapture == true) {
-                            x.func(e);
-                        }
-                    }
-            }
-            for (let i = targetArray.length - 1; i >= 0; i--) {
-                    for (let x of targetArray[i].eventArray) {
-                        if (x.type.match("onclick") &&
-                            newHitRusult == hitResult &&
-                            x.ifCapture == false) {
-                            x.func(e);
-                        }
-                    }
-            }
-        }
+    }
         return stage;
     }
 
@@ -101,11 +89,11 @@ namespace engine {
         }
 
         renderContainer(container: DisplayObjectContainer) {
-            for (let child of container.array) {
+            for (let child of container.children) {
                 let context2D = this.context2D;
                 context2D.globalAlpha = child.globalAlpha;
                 let m = child.globalMatrix;
-                context2D.setTransform(m.m11, m.m12, m.m21, m.m22, m.dx, m.dy);
+                context2D.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
 
                 if (child.type == "Bitmap") {
                     this.renderBitmap(child as Bitmap);
@@ -120,23 +108,11 @@ namespace engine {
         }
 
         renderBitmap(bitmap: Bitmap) {
-             if (bitmap.image == null) {
-                let img = new Image();
-                img.src = bitmap.texture;
-                img.onload = () => {
-                    this.context2D.drawImage(img, 0, 0);
-                    bitmap.image = img;
-                }
-            } else {
-                bitmap.image.src=bitmap.texture;
-                this.context2D.drawImage(bitmap.image, 0, 0);
-            }
+            this.context2D.drawImage(bitmap.img, 0, 0);
         }
 
         renderTextField(textField: TextField) {
-            this.context2D.fillText(textField.text, 0, 10);
-            textField._measureTextWidth = this.context2D.measureText(textField.text).width;
+
         }
     }
-
 }

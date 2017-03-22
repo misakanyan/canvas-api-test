@@ -1,190 +1,263 @@
 namespace engine {
 
-
-    type MovieClipData = {
-
-        name: string,
+    export type MovieClipData = {
+        name: string;
         frames: MovieClipFrameData[]
     }
-
-    type MovieClipFrameData = {
+    export type MovieClipFrameData = {
         "image": string
+    }
+
+    export enum TouchType {
+        TOUCH_TAP,
+        TOUCH_MOVE,
+        TOUCH_DRAG
     }
 
     export interface Drawable {
 
+        update();
     }
 
     export abstract class DisplayObject implements Drawable {
 
-        x = 0;
-        y = 0;
-        scaleX = 1;
-        scaleY = 1;
-        rotation = 0;
-        relativeAlpha = 1;
-        globalAlpha = 1;
+        type = "DisplayObject";
+
+        x: number = 0;
+        y: number = 0;
+        scaleX: number = 1;
+        scaleY: number = 1;
+        rotation: number = 0;
+        width: number = 100;
+        height: number = 100;
+        relativeAlpha: number = 1;
+        globalAlpha: number = 1;
         relativeMatrix: Matrix;
         globalMatrix: Matrix;
-        parent: DisplayObjectContainer;
-        touchEnabled: boolean;
-        type: string;
-        eventArray: TheEvent[];
+
+        parent: DisplayObject;
+
+        touchEnabled: boolean = false;
 
         constructor(type: string) {
+            this.type = type;
             this.relativeMatrix = new Matrix();
             this.globalMatrix = new Matrix();
-            this.eventArray = new Array();
-            this.type = type;
         }
-
         update() {
-            this.relativeMatrix = new Matrix();
             this.relativeMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
-
             if (this.parent) {
-                this.globalAlpha = this.parent.globalAlpha * this.relativeAlpha;
                 this.globalMatrix = matrixAppendMatrix(this.relativeMatrix, this.parent.globalMatrix);
             }
             else {
+                this.globalMatrix = this.relativeMatrix;
+            }
+            if (this.parent) {
+                this.globalAlpha = this.parent.globalAlpha * this.relativeAlpha;
+            }
+            else {
                 this.globalAlpha = this.relativeAlpha;
-                this.globalMatrix = new Matrix(1, 0, 0, 1, 0, 0);
             }
         }
+        //捕获冒泡机制
+        //消息机制
+        //模板方法方式
+        // draw(context: CanvasRenderingContext2D) {
+        //     var localMat: Matrix = new Matrix;
+        //     localMat.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
+        //     if (this.parent) {
+        //         this.globalAlpha = this.parent.globalAlpha * this.localAlpha;
+        //         this.globalMat = matrixAppendMatrix(localMat, this.parent.globalMat);
+        //     } else {
+        //         this.globalAlpha = this.localAlpha;
+        //         this.globalMat = localMat;
+        //     }
+        //     context.save();
+        //     context.globalAlpha = this.globalAlpha;
+        //     context.setTransform(this.globalMat.a, this.globalMat.b, this.globalMat.c, this.globalMat.d, this.globalMat.tx, this.globalMat.ty);
+        //     this.render(context);
+        //     context.restore();
+        // }
 
-        addEventListener(eventType: string, func: Function, target: DisplayObject, ifCapture: boolean) {
-            //if this.eventArray doesn't contain e
-            let e = new TheEvent(eventType, func, target, ifCapture);
-            this.eventArray.push(e);
+
+        abstract hitTest(x, y): DisplayObject;
+
+        touchType: TouchType[] = [];
+        function: Function[] = [];
+        useCapture: boolean[] = [];
+        isMouseDown: boolean = false;
+
+        addEventListener(_type: TouchType, listener: (e: MouseEvent) => void, _useCapture?: boolean) {
+            this.touchType.push(_type);
+            this.function.push(listener);
+            this.useCapture.push(_useCapture);
         }
 
-        abstract hitTest(x: number, y: number): DisplayObject
-
+        dispatchEvent(e: any) {
+            //console.log(e.type);
+            if (e.type == "mousedown") {
+                this.isMouseDown = true;
+            } else if (e.type == "mouseup" && this.isMouseDown == true) {
+                for (let i = 0; i < this.type.length; i++) {
+                    if (this.touchType[i] == TouchType.TOUCH_TAP) {
+                        this.function[i](e);
+                    }
+                }
+                this.isMouseDown = false;
+            } else if (e.type == "mousemove") {
+                for (let i = 0; i < this.type.length; i++) {
+                    if (this.touchType[i] == TouchType.TOUCH_MOVE) {
+                        this.function[i](e);
+                    }
+                }
+            }
+        }
     }
 
-
-    export class Bitmap extends DisplayObject {
-
-        image: HTMLImageElement;
-        texture: string;
+    export class DisplayObjectContainer extends DisplayObject {
+        children: DisplayObject[] = [];
 
         constructor() {
-            super("Bitmap");
+            super("DisplayObjectContainer");
+        }
+        //render
+        // render(context: CanvasRenderingContext2D) {
+
+        //     for (let drawable of this.array) {
+        //         drawable.draw(context);
+        //     }
+        // }
+
+        update() {
+            super.update();
+            for (let drawable of this.children) {
+                drawable.update();
+            }
         }
 
-        hitTest(x: number, y: number) {
-            if (this.image) {
-                var rect = new Rectangle(0, 0, this.image.width, this.image.height);
-                rect.x = rect.y = 0;
-                if (rect.isPointInRectangle(x, y)) {
-                    let eventManager = EventManager.getInstance();
-                    eventManager.targets.push(this);
-                    return this;
-                }
-                else {
-                    return null;
+        addChild(obj: DisplayObject) {
+            obj.parent = this;
+            this.children.push(obj);
+        }
+
+        removeChild(obj: DisplayObject) {
+            obj.parent = null;
+            for (let i = 0; i < this.children.length; i++) {
+                if (this.children[i] == obj) {
+                    this.children[i] = null;
                 }
             }
         }
+
+        hitTest(x, y) {
+            if (this.useCapture[0] == true) {/////////////////////////////////////////////
+                return this;
+            }
+            for (let i = this.children.length - 1; i >= 0; i--) {
+                let child = this.children[i];
+                let point = new Point(x, y);
+                let invertChildGlobalMatrix = invertMatrix(child.globalMatrix);
+                let pointBaseOnChild = pointAppendMatrix(point, invertChildGlobalMatrix);//stage不能动 其他container可以
+                if (child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y)) {
+                    return child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
+                }
+            }
+            if (this.touchEnabled) {
+                return this;//所有child都没有点到就返回container
+            }
+        }
+    }
+
+    var fonts = {
+
+        "name": "Arial",
+        "font": {
+            "A": [0, 0, 0, 0, 1, 0, 0, 1, 1, 0],
+            "B": []
+        }
+
     }
 
     export class TextField extends DisplayObject {
 
         text: string = "";
+        parent: DisplayObjectContainer;
+        textColor: string;
+
+        private _measureTextWidth: number = 0;
 
         constructor() {
             super("TextField");
         }
 
-        _measureTextWidth: number = 0;
+        // render(context: CanvasRenderingContext2D) {
+        //     context.fillStyle = this.textColor;
+        //     context.fillText(this.text, 0, 0);
+        //     context.fillStyle = null;//unsure
+        //     this._measureTextWidth = context.measureText(this.text).width;
+        // }
 
         hitTest(x: number, y: number) {
-            var rect = new Rectangle(0, 0, this._measureTextWidth, 20);
-            if (rect.isPointInRectangle(x,y)) {
-                let eventManager = EventManager.getInstance();
-                eventManager.targets.push(this);
+            var rect = new Rectangle();
+            rect.y = -10
+            rect.width = 7 * this.text.length;
+            rect.height = 10;
+            if (rect.isPointInRectangle(new Point(x, y)) && this.touchEnabled) {
+                return this;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    export class Shape extends DisplayObjectContainer {
+        graphics: Graphics = new Graphics("Graphics");
+
+        constructor() {
+            super();
+        }
+
+    }
+
+    export class Graphics extends DisplayObject {
+
+        fillColor = "#000000";
+        alpha = 1;
+        globalAlpha = 1;
+        strokeColor = "#000000";
+        lineWidth = 1;
+        lineColor = "#000000";
+        x: number = 0;
+        y: number = 0;
+        width: number = 100;
+        height: number = 100;
+        context: CanvasRenderingContext2D;
+
+        // render(context2D: CanvasRenderingContext2D) {
+        //     this.context = context2D;
+        //     context2D.globalAlpha = this.alpha;
+        //     context2D.fillStyle = this.fillColor;
+        //     context2D.fillRect(this.x, this.y, this.width, this.height);
+        //     context2D.fill();
+        // }
+
+        hitTest(x: number, y: number) {
+            let rect = new engine.Rectangle();
+            rect.width = this.width;
+            rect.height = this.height;
+            let result = rect.isPointInRectangle(new engine.Point(x, y));
+            //console.log("bitmap", rect.height, rect.width, x, y);
+            if (result) {
                 return this;
             }
             else {
                 return null;
             }
         }
-    }
 
-    export class DisplayObjectContainer extends DisplayObject {
-
-        array: DisplayObject[] = [];
-
-        constructor() {
-            super("DisplayObjectContainer");
-        }
-
-        update() {
-            super.update();
-            for (let displayobject of this.array) {
-                displayobject.update();
-            }
-        }
-
-        addChild(child: DisplayObject) {
-            let x = this.array.indexOf(child);
-            if (x < 0) {
-                this.array.push(child);
-                child.parent = this;
-            } else {
-                //如需遮罩，则需在此处将已有子物体移至第一位
-            }
-        }
-
-        removeChild(child: DisplayObject) {
-            let x = this.array.indexOf(child);
-            if (x >= 0) {
-                this.array.splice(x, 1);
-            }
-        }
-
-        hitTest(x, y) {
-            for (let i = this.array.length - 1; i >= 0; i--) {
-                let child = this.array[i];
-                let point = new Point(x, y);
-                let invertChildLocalMatrix = invertMatrix(child.relativeMatrix);
-                let pointBaseOnChild = pointAppendMatrix(point, invertChildLocalMatrix);
-                let hitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
-                if (hitTestResult) {
-                    let eventManager = EventManager.getInstance();
-                    eventManager.targets.push(this);
-                    return hitTestResult;
-                }
-            }
-            return null;
-        }
-
-    }
-
-    export class Shape extends DisplayObject {
-
-        width: number;
-        height: number;
-        fillColor: string = "#000000"
-        alpha: number = 1;
-
-        constructor() {
-            super("Shape");
-        }
-
-        beginFill(fillColor: string, alpha: number) {
-            var type = "^#[0-9a-fA-F]{6}{1}$";
-            var test = new RegExp(type);
-            if (fillColor.match(test) != null) {
-                this.fillColor = fillColor;
-            } else {
-                console.log("invaild color value");
-            }
-            if (isInRange(0, alpha, 1)) {
-                this.alpha = alpha
-            } else {
-                console.log("invaild alpha value");
-            }
+        beginFill(color, alpha) {
+            this.fillColor = color;
+            this.alpha = alpha;
         }
 
         endFill() {
@@ -192,40 +265,48 @@ namespace engine {
             this.alpha = 1;
         }
 
-        drawRect(x: number, y: number, width: number, height: number, context2D: CanvasRenderingContext2D) {
-            context2D.globalAlpha = this.alpha;
-            context2D.fillStyle = this.fillColor;
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-            this.render(context2D);
+        drawRect(x1, y1, x2, y2) {
+            this.x = x1;
+            this.y = y1;
+            this.width = x2;
+            this.height = y2;
         }
 
-        render(context2D: CanvasRenderingContext2D) {
-            context2D.globalAlpha = this.alpha;
-            context2D.fillStyle = this.fillColor;
-            context2D.fillRect(this.x, this.y, this.width, this.height);
+        clear() {
+            // this.context.clearRect(this.x, this.y, this.width, this.height);
+            console.log("clear")
+        }
+    }
+
+    export class Bitmap extends DisplayObject {
+
+        img = new Image();
+        parent: DisplayObjectContainer;
+
+        constructor() {
+            super("Bitmap");
         }
 
-        //let a = new engine.Rectangle();
-
+        // render(context: CanvasRenderingContext2D) {
+        //     context.drawImage(this.img, 0, 0, this.width, this.height);
+        // }
 
         hitTest(x: number, y: number) {
-            var rect = new Rectangle(0, 0, this.width, this.height);
-            if (rect.isPointInRectangle(x,y)) {
-                let eventManager = EventManager.getInstance();
-                eventManager.targets.push(this);
-                return this;
-            }
-            else {
-                return null;
+            if (this.img) {
+                let rect = new Rectangle();
+                rect.x = rect.y = 0;
+                rect.width = this.img.width;
+                rect.height = this.img.height;
+                if (rect.isPointInRectangle(new Point(x, y)) && this.touchEnabled) {
+                    return this;
+                } else {
+                    return null;
+                }
             }
         }
     }
 
-
-    class MovieClip extends Bitmap {
+    export class MovieClip extends Bitmap {
 
         private advancedTime: number = 0;
 
@@ -272,41 +353,4 @@ namespace engine {
 
         }
     }
-
-    export class Timer {
-
-        interval: number = 1000;
-        loopNum: number = 1;
-        delayTime: number = 0;
-
-        constructor(interval: number, loopNum: number, delayTime: number) {
-            this.interval = interval;
-            this.loopNum = loopNum;
-            if (arguments.length >= 3) {
-                this.delayTime = delayTime;
-            }
-        }
-
-        addEventListener() {
-
-        }
-
-    }
-
-    export class Tween {
-
-        target:any;
-        totalStep:number = 10;
-        currentStep:number = 0;
-
-        get(target:any){
-            this.target = target;
-        }
-
-        to(x:number,y:number){
-
-        }
-
-    }
-
 }

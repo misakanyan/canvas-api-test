@@ -1,11 +1,7 @@
 {
 	"compilerOptions": {
-		"target": "es5",
-		"watch": true,
-		"sourceMap": true,
-		//"outDir": "./out",
-		"out": "./test/out/test.js",
-		"experimentalDecorators": true
+	   "target": "es5",
+	   "out": "./test/out/test.js"
 	},
 	"include": [
 		"src/**/*.ts",

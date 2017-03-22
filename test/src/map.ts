@@ -120,7 +120,7 @@ class Tile extends engine.DisplayObjectContainer {
         this.data = data;
         var bitmap = new engine.Bitmap;
         var size: number = 50;
-        bitmap.texture = "resource/assets/" + data.image;
+        //bitmap.img.src = "resource/assets/" + data.image;
         bitmap.x = (data.x - 1) * size;
         bitmap.y = (data.y - 1) * size;
         this.addChild(bitmap);
@@ -160,7 +160,7 @@ class TileMap extends engine.DisplayObjectContainer {
             this.addChild(tile);
             //console.log("init success")
         }
-        this.map.texture = "resource/assets/map.png";
+        this.map.img.src = "resource/assets/map.png";
         this.addChild(this.map);
         //this.touchEnabled = true;
 
@@ -168,30 +168,30 @@ class TileMap extends engine.DisplayObjectContainer {
 
     }
 
-    // public initEventListener(chara: Character) {
-    //     this.addEventListener(engine.TouchEvent.TOUCH_TAP, (e:MouseEvent) => {
-    //         //console.log(e.currentTarget);
-    //         var startx: number = Math.floor((chara._body.x) / 50);
-    //         var starty: number = Math.floor(chara._body.y / 50);
-    //         var endx: number = Math.floor(e.localX / 50);
-    //         var endy: number = Math.floor(e.localY / 50);
-    //         //console.log("stageX:" + e.stageX + "stageY:" + e.stageY);
-    //         //if (e.localX >= 450 && e.localX <= 500 && e.localY >= 100 && e.localY <= 150) {
-    //         //    endx = 8;
-    //         //    endy = 2;
-    //         //}
-    //         //console.log("endx:" + endx + "endy:" + endy);
-    //         var path: Point[] = this.astarPath(startx, starty, endx, endy);
-    //         if (path.length > 1) {
-    //             if (startx != endx || starty != endy) {
-    //                 CommandList.getInstance().addCommand(new WalkCommand(e.localX, e.localY, path, chara));
-    //                 CommandList.getInstance().execute();
-    //                 //console.log("addWalkCommand and execute");
-    //                 //chara.move(e.localX, e.localY, path);
-    //             }
-    //         }
-    //     }, this,false);
-    // }
+    public initEventListener(chara: Character) {
+        this.addEventListener(engine.TouchType.TOUCH_TAP, (e:MouseEvent) => {
+            //console.log(e.currentTarget);
+            var startx: number = Math.floor((chara._body.x) / 50);
+            var starty: number = Math.floor(chara._body.y / 50);
+            var endx: number = Math.floor(e.offsetX/ 50);
+            var endy: number = Math.floor(e.offsetY / 50);
+            //console.log("stageX:" + e.stageX + "stageY:" + e.stageY);
+            //if (e.localX >= 450 && e.localX <= 500 && e.localY >= 100 && e.localY <= 150) {
+            //    endx = 8;
+            //    endy = 2;
+            //}
+            //console.log("endx:" + endx + "endy:" + endy);
+            var path: Point[] = this.astarPath(startx, starty, endx, endy);
+            if (path.length > 1) {
+                if (startx != endx || starty != endy) {
+                    CommandList.getInstance().addCommand(new WalkCommand(e.offsetX, e.offsetY, path, chara));
+                    CommandList.getInstance().execute();
+                    //console.log("addWalkCommand and execute");
+                    //chara.move(e.localX, e.localY, path);
+                }
+            }
+        });
+    }
 
     private grid: Grid = new Grid(10, 10);
     private astar: AStar = new AStar();

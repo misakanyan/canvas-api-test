@@ -5,23 +5,19 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var engine;
 (function (engine) {
-    var Point = (function () {
-        function Point(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        return Point;
-    }());
-    engine.Point = Point;
     var Rectangle = (function () {
-        function Rectangle(x, y, width, height) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
+        function Rectangle() {
+            this.x = 0;
+            this.y = 0;
+            this.width = 1;
+            this.height = 1;
         }
-        Rectangle.prototype.isPointInRectangle = function (testX, testY) {
-            if (isInRange(this.x, testX, this.x + this.width) && isInRange(this.y, testY, this.y + this.height)) {
+        Rectangle.prototype.isPointInRectangle = function (point) {
+            var rect = this;
+            if (point.x < rect.width + rect.x &&
+                point.y < rect.height + rect.y &&
+                point.x > rect.x &&
+                point.y > rect.y) {
                 return true;
             }
             else {
@@ -31,6 +27,14 @@ var engine;
         return Rectangle;
     }());
     engine.Rectangle = Rectangle;
+    var Point = (function () {
+        function Point(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        return Point;
+    }());
+    engine.Point = Point;
     function isInRange(min, testNum, max) {
         if (testNum >= min && testNum <= max) {
             return true;
@@ -41,8 +45,8 @@ var engine;
     }
     engine.isInRange = isInRange;
     function pointAppendMatrix(point, m) {
-        var x = m.m11 * point.x + m.m12 * point.y + m.dx;
-        var y = m.m21 * point.x + m.m22 * point.y + m.dy;
+        var x = m.a * point.x + m.c * point.y + m.tx;
+        var y = m.b * point.x + m.d * point.y + m.ty;
         return new Point(x, y);
     }
     engine.pointAppendMatrix = pointAppendMatrix;
@@ -51,35 +55,35 @@ var engine;
      * http://wenku.baidu.com/view/b0a9fed8ce2f0066f53322a9
      */
     function invertMatrix(m) {
-        var a = m.m11;
-        var b = m.m21;
-        var c = m.m12;
-        var d = m.m22;
-        var tx = m.dx;
-        var ty = m.dy;
+        var a = m.a;
+        var b = m.b;
+        var c = m.c;
+        var d = m.d;
+        var tx = m.tx;
+        var ty = m.ty;
         var determinant = a * d - b * c;
         var result = new Matrix(1, 0, 0, 1, 0, 0);
         if (determinant == 0) {
             throw new Error("no invert");
         }
         determinant = 1 / determinant;
-        var k = result.m11 = d * determinant;
-        b = result.m21 = -b * determinant;
-        c = result.m12 = -c * determinant;
-        d = result.m22 = a * determinant;
-        result.dx = -(k * tx + c * ty);
-        result.dy = -(b * tx + d * ty);
+        var k = result.a = d * determinant;
+        b = result.b = -b * determinant;
+        c = result.c = -c * determinant;
+        d = result.d = a * determinant;
+        result.tx = -(k * tx + c * ty);
+        result.ty = -(b * tx + d * ty);
         return result;
     }
     engine.invertMatrix = invertMatrix;
     function matrixAppendMatrix(m1, m2) {
         var result = new Matrix();
-        result.m11 = m1.m11 * m2.m11 + m1.m21 * m2.m12;
-        result.m21 = m1.m11 * m2.m21 + m1.m21 * m2.m22;
-        result.m12 = m2.m11 * m1.m12 + m2.m12 * m1.m22;
-        result.m22 = m2.m21 * m1.m12 + m1.m22 * m2.m22;
-        result.dx = m2.m11 * m1.dx + m2.m12 * m1.dy + m2.dx;
-        result.dy = m2.m21 * m1.dx + m2.m22 * m1.dy + m2.dy;
+        result.a = m1.a * m2.a + m1.b * m2.c;
+        result.b = m1.a * m2.b + m1.b * m2.d;
+        result.c = m2.a * m1.c + m2.c * m1.d;
+        result.d = m2.b * m1.c + m1.d * m2.d;
+        result.tx = m2.a * m1.tx + m2.c * m1.ty + m2.tx;
+        result.ty = m2.b * m1.tx + m2.d * m1.ty + m2.ty;
         return result;
     }
     engine.matrixAppendMatrix = matrixAppendMatrix;
@@ -89,39 +93,46 @@ var engine;
     var TwoPI = PI * 2;
     var DEG_TO_RAD = Math.PI / 180;
     var Matrix = (function () {
-        function Matrix(m11, m21, m12, m22, dx, dy) {
-            if (m11 === void 0) { m11 = 1; }
-            if (m21 === void 0) { m21 = 0; }
-            if (m12 === void 0) { m12 = 0; }
-            if (m22 === void 0) { m22 = 1; }
-            if (dx === void 0) { dx = 0; }
-            if (dy === void 0) { dy = 0; }
-            this.m11 = m11;
-            this.m21 = m21;
-            this.m12 = m12;
-            this.m22 = m22;
-            this.dx = dx;
-            this.dy = dy;
+        function Matrix(a, b, c, d, tx, ty) {
+            if (a === void 0) { a = 1; }
+            if (b === void 0) { b = 0; }
+            if (c === void 0) { c = 0; }
+            if (d === void 0) { d = 1; }
+            if (tx === void 0) { tx = 0; }
+            if (ty === void 0) { ty = 0; }
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+            this.tx = tx;
+            this.ty = ty;
         }
         Matrix.prototype.toString = function () {
-            return "(a=" + this.m11 + ", b=" + this.m21 + ", c=" + this.m12 + ", d=" + this.m22 + ", tx=" + this.dx + ", ty=" + this.dy + ")";
+            return "(a=" + this.a + ", b=" + this.b + ", c=" + this.c + ", d=" + this.d + ", tx=" + this.tx + ", ty=" + this.ty + ")";
         };
         Matrix.prototype.updateFromDisplayObject = function (x, y, scaleX, scaleY, rotation) {
-            this.dx = x;
-            this.dy = y;
+            this.tx = x;
+            this.ty = y;
             var skewX, skewY;
             skewX = skewY = rotation / 180 * Math.PI;
             var u = Math.cos(skewX);
             var v = Math.sin(skewX);
-            this.m11 = Math.cos(skewY) * scaleX;
-            this.m21 = Math.sin(skewY) * scaleX;
-            this.m12 = -v * scaleY;
-            this.m22 = u * scaleY;
+            this.a = Math.cos(skewY) * scaleX;
+            this.b = Math.sin(skewY) * scaleX;
+            this.c = -v * scaleY;
+            this.d = u * scaleY;
         };
         return Matrix;
     }());
     engine.Matrix = Matrix;
 })(engine || (engine = {}));
+// //配置不用数组
+// let movieClipData={
+//     name:"hero",
+//     frame:{
+//         "1":{"image":"1.jpg"}
+//     }
+// }
 var engine;
 (function (engine) {
     var Ticker = (function () {
@@ -135,22 +146,9 @@ var engine;
             return Ticker.instance;
         };
         Ticker.prototype.register = function (listener) {
-            var x = this.listeners.indexOf(listener);
-            if (x < 0) {
-                this.listeners.push(listener);
-            }
-            else {
-                console.log("already listen");
-            }
+            this.listeners.push(listener);
         };
         Ticker.prototype.unregister = function (listener) {
-            var x = this.listeners.indexOf(listener);
-            if (x >= 0) {
-                this.listeners.splice(x, 1);
-            }
-            else {
-                console.log("no listener");
-            }
         };
         Ticker.prototype.notify = function (deltaTime) {
             for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
@@ -164,52 +162,244 @@ var engine;
 })(engine || (engine = {}));
 var engine;
 (function (engine) {
+    (function (TouchType) {
+        TouchType[TouchType["TOUCH_TAP"] = 0] = "TOUCH_TAP";
+        TouchType[TouchType["TOUCH_MOVE"] = 1] = "TOUCH_MOVE";
+        TouchType[TouchType["TOUCH_DRAG"] = 2] = "TOUCH_DRAG";
+    })(engine.TouchType || (engine.TouchType = {}));
+    var TouchType = engine.TouchType;
     var DisplayObject = (function () {
         function DisplayObject(type) {
+            this.type = "DisplayObject";
             this.x = 0;
             this.y = 0;
             this.scaleX = 1;
             this.scaleY = 1;
             this.rotation = 0;
+            this.width = 100;
+            this.height = 100;
             this.relativeAlpha = 1;
             this.globalAlpha = 1;
+            this.touchEnabled = false;
+            this.touchType = [];
+            this.function = [];
+            this.useCapture = [];
+            this.isMouseDown = false;
+            this.type = type;
             this.relativeMatrix = new engine.Matrix();
             this.globalMatrix = new engine.Matrix();
-            this.eventArray = new Array();
-            this.type = type;
         }
         DisplayObject.prototype.update = function () {
-            this.relativeMatrix = new engine.Matrix();
             this.relativeMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
             if (this.parent) {
-                this.globalAlpha = this.parent.globalAlpha * this.relativeAlpha;
                 this.globalMatrix = engine.matrixAppendMatrix(this.relativeMatrix, this.parent.globalMatrix);
             }
             else {
+                this.globalMatrix = this.relativeMatrix;
+            }
+            if (this.parent) {
+                this.globalAlpha = this.parent.globalAlpha * this.relativeAlpha;
+            }
+            else {
                 this.globalAlpha = this.relativeAlpha;
-                this.globalMatrix = new engine.Matrix(1, 0, 0, 1, 0, 0);
             }
         };
-        DisplayObject.prototype.addEventListener = function (eventType, func, target, ifCapture) {
-            //if this.eventArray doesn't contain e
-            var e = new engine.TheEvent(eventType, func, target, ifCapture);
-            this.eventArray.push(e);
+        DisplayObject.prototype.addEventListener = function (_type, listener, _useCapture) {
+            this.touchType.push(_type);
+            this.function.push(listener);
+            this.useCapture.push(_useCapture);
+        };
+        DisplayObject.prototype.dispatchEvent = function (e) {
+            //console.log(e.type);
+            if (e.type == "mousedown") {
+                this.isMouseDown = true;
+            }
+            else if (e.type == "mouseup" && this.isMouseDown == true) {
+                for (var i = 0; i < this.type.length; i++) {
+                    if (this.touchType[i] == TouchType.TOUCH_TAP) {
+                        this.function[i](e);
+                    }
+                }
+                this.isMouseDown = false;
+            }
+            else if (e.type == "mousemove") {
+                for (var i = 0; i < this.type.length; i++) {
+                    if (this.touchType[i] == TouchType.TOUCH_MOVE) {
+                        this.function[i](e);
+                    }
+                }
+            }
         };
         return DisplayObject;
     }());
     engine.DisplayObject = DisplayObject;
+    var DisplayObjectContainer = (function (_super) {
+        __extends(DisplayObjectContainer, _super);
+        function DisplayObjectContainer() {
+            _super.call(this, "DisplayObjectContainer");
+            this.children = [];
+        }
+        //render
+        // render(context: CanvasRenderingContext2D) {
+        //     for (let drawable of this.array) {
+        //         drawable.draw(context);
+        //     }
+        // }
+        DisplayObjectContainer.prototype.update = function () {
+            _super.prototype.update.call(this);
+            for (var _i = 0, _a = this.children; _i < _a.length; _i++) {
+                var drawable = _a[_i];
+                drawable.update();
+            }
+        };
+        DisplayObjectContainer.prototype.addChild = function (obj) {
+            obj.parent = this;
+            this.children.push(obj);
+        };
+        DisplayObjectContainer.prototype.removeChild = function (obj) {
+            obj.parent = null;
+            for (var i = 0; i < this.children.length; i++) {
+                if (this.children[i] == obj) {
+                    this.children[i] = null;
+                }
+            }
+        };
+        DisplayObjectContainer.prototype.hitTest = function (x, y) {
+            if (this.useCapture[0] == true) {
+                return this;
+            }
+            for (var i = this.children.length - 1; i >= 0; i--) {
+                var child = this.children[i];
+                var point = new engine.Point(x, y);
+                var invertChildGlobalMatrix = engine.invertMatrix(child.globalMatrix);
+                var pointBaseOnChild = engine.pointAppendMatrix(point, invertChildGlobalMatrix); //stage不能动 其他container可以
+                if (child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y)) {
+                    return child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
+                }
+            }
+            if (this.touchEnabled) {
+                return this; //所有child都没有点到就返回container
+            }
+        };
+        return DisplayObjectContainer;
+    }(DisplayObject));
+    engine.DisplayObjectContainer = DisplayObjectContainer;
+    var fonts = {
+        "name": "Arial",
+        "font": {
+            "A": [0, 0, 0, 0, 1, 0, 0, 1, 1, 0],
+            "B": []
+        }
+    };
+    var TextField = (function (_super) {
+        __extends(TextField, _super);
+        function TextField() {
+            _super.call(this, "TextField");
+            this.text = "";
+            this._measureTextWidth = 0;
+        }
+        // render(context: CanvasRenderingContext2D) {
+        //     context.fillStyle = this.textColor;
+        //     context.fillText(this.text, 0, 0);
+        //     context.fillStyle = null;//unsure
+        //     this._measureTextWidth = context.measureText(this.text).width;
+        // }
+        TextField.prototype.hitTest = function (x, y) {
+            var rect = new engine.Rectangle();
+            rect.y = -10;
+            rect.width = 7 * this.text.length;
+            rect.height = 10;
+            if (rect.isPointInRectangle(new engine.Point(x, y)) && this.touchEnabled) {
+                return this;
+            }
+            else {
+                return null;
+            }
+        };
+        return TextField;
+    }(DisplayObject));
+    engine.TextField = TextField;
+    var Shape = (function (_super) {
+        __extends(Shape, _super);
+        function Shape() {
+            _super.call(this);
+            this.graphics = new Graphics("Graphics");
+        }
+        return Shape;
+    }(DisplayObjectContainer));
+    engine.Shape = Shape;
+    var Graphics = (function (_super) {
+        __extends(Graphics, _super);
+        function Graphics() {
+            _super.apply(this, arguments);
+            this.fillColor = "#000000";
+            this.alpha = 1;
+            this.globalAlpha = 1;
+            this.strokeColor = "#000000";
+            this.lineWidth = 1;
+            this.lineColor = "#000000";
+            this.x = 0;
+            this.y = 0;
+            this.width = 100;
+            this.height = 100;
+        }
+        // render(context2D: CanvasRenderingContext2D) {
+        //     this.context = context2D;
+        //     context2D.globalAlpha = this.alpha;
+        //     context2D.fillStyle = this.fillColor;
+        //     context2D.fillRect(this.x, this.y, this.width, this.height);
+        //     context2D.fill();
+        // }
+        Graphics.prototype.hitTest = function (x, y) {
+            var rect = new engine.Rectangle();
+            rect.width = this.width;
+            rect.height = this.height;
+            var result = rect.isPointInRectangle(new engine.Point(x, y));
+            //console.log("bitmap", rect.height, rect.width, x, y);
+            if (result) {
+                return this;
+            }
+            else {
+                return null;
+            }
+        };
+        Graphics.prototype.beginFill = function (color, alpha) {
+            this.fillColor = color;
+            this.alpha = alpha;
+        };
+        Graphics.prototype.endFill = function () {
+            this.fillColor = "#000000";
+            this.alpha = 1;
+        };
+        Graphics.prototype.drawRect = function (x1, y1, x2, y2) {
+            this.x = x1;
+            this.y = y1;
+            this.width = x2;
+            this.height = y2;
+        };
+        Graphics.prototype.clear = function () {
+            // this.context.clearRect(this.x, this.y, this.width, this.height);
+            console.log("clear");
+        };
+        return Graphics;
+    }(DisplayObject));
+    engine.Graphics = Graphics;
     var Bitmap = (function (_super) {
         __extends(Bitmap, _super);
         function Bitmap() {
             _super.call(this, "Bitmap");
+            this.img = new Image();
         }
+        // render(context: CanvasRenderingContext2D) {
+        //     context.drawImage(this.img, 0, 0, this.width, this.height);
+        // }
         Bitmap.prototype.hitTest = function (x, y) {
-            if (this.image) {
-                var rect = new engine.Rectangle(0, 0, this.image.width, this.image.height);
+            if (this.img) {
+                var rect = new engine.Rectangle();
                 rect.x = rect.y = 0;
-                if (rect.isPointInRectangle(x, y)) {
-                    var eventManager = engine.EventManager.getInstance();
-                    eventManager.targets.push(this);
+                rect.width = this.img.width;
+                rect.height = this.img.height;
+                if (rect.isPointInRectangle(new engine.Point(x, y)) && this.touchEnabled) {
                     return this;
                 }
                 else {
@@ -220,129 +410,6 @@ var engine;
         return Bitmap;
     }(DisplayObject));
     engine.Bitmap = Bitmap;
-    var TextField = (function (_super) {
-        __extends(TextField, _super);
-        function TextField() {
-            _super.call(this, "TextField");
-            this.text = "";
-            this._measureTextWidth = 0;
-        }
-        TextField.prototype.hitTest = function (x, y) {
-            var rect = new engine.Rectangle(0, 0, this._measureTextWidth, 20);
-            if (rect.isPointInRectangle(x, y)) {
-                var eventManager = engine.EventManager.getInstance();
-                eventManager.targets.push(this);
-                return this;
-            }
-            else {
-                return null;
-            }
-        };
-        return TextField;
-    }(DisplayObject));
-    engine.TextField = TextField;
-    var DisplayObjectContainer = (function (_super) {
-        __extends(DisplayObjectContainer, _super);
-        function DisplayObjectContainer() {
-            _super.call(this, "DisplayObjectContainer");
-            this.array = [];
-        }
-        DisplayObjectContainer.prototype.update = function () {
-            _super.prototype.update.call(this);
-            for (var _i = 0, _a = this.array; _i < _a.length; _i++) {
-                var displayobject = _a[_i];
-                displayobject.update();
-            }
-        };
-        DisplayObjectContainer.prototype.addChild = function (child) {
-            var x = this.array.indexOf(child);
-            if (x < 0) {
-                this.array.push(child);
-                child.parent = this;
-            }
-            else {
-            }
-        };
-        DisplayObjectContainer.prototype.removeChild = function (child) {
-            var x = this.array.indexOf(child);
-            if (x >= 0) {
-                this.array.splice(x, 1);
-            }
-        };
-        DisplayObjectContainer.prototype.hitTest = function (x, y) {
-            for (var i = this.array.length - 1; i >= 0; i--) {
-                var child = this.array[i];
-                var point = new engine.Point(x, y);
-                var invertChildLocalMatrix = engine.invertMatrix(child.relativeMatrix);
-                var pointBaseOnChild = engine.pointAppendMatrix(point, invertChildLocalMatrix);
-                var hitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
-                if (hitTestResult) {
-                    var eventManager = engine.EventManager.getInstance();
-                    eventManager.targets.push(this);
-                    return hitTestResult;
-                }
-            }
-            return null;
-        };
-        return DisplayObjectContainer;
-    }(DisplayObject));
-    engine.DisplayObjectContainer = DisplayObjectContainer;
-    var Shape = (function (_super) {
-        __extends(Shape, _super);
-        function Shape() {
-            _super.call(this, "Shape");
-            this.fillColor = "#000000";
-            this.alpha = 1;
-        }
-        Shape.prototype.beginFill = function (fillColor, alpha) {
-            var type = "^#[0-9a-fA-F]{6}{1}$";
-            var test = new RegExp(type);
-            if (fillColor.match(test) != null) {
-                this.fillColor = fillColor;
-            }
-            else {
-                console.log("invaild color value");
-            }
-            if (engine.isInRange(0, alpha, 1)) {
-                this.alpha = alpha;
-            }
-            else {
-                console.log("invaild alpha value");
-            }
-        };
-        Shape.prototype.endFill = function () {
-            this.fillColor = "#000000";
-            this.alpha = 1;
-        };
-        Shape.prototype.drawRect = function (x, y, width, height, context2D) {
-            context2D.globalAlpha = this.alpha;
-            context2D.fillStyle = this.fillColor;
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-            this.render(context2D);
-        };
-        Shape.prototype.render = function (context2D) {
-            context2D.globalAlpha = this.alpha;
-            context2D.fillStyle = this.fillColor;
-            context2D.fillRect(this.x, this.y, this.width, this.height);
-        };
-        //let a = new engine.Rectangle();
-        Shape.prototype.hitTest = function (x, y) {
-            var rect = new engine.Rectangle(0, 0, this.width, this.height);
-            if (rect.isPointInRectangle(x, y)) {
-                var eventManager = engine.EventManager.getInstance();
-                eventManager.targets.push(this);
-                return this;
-            }
-            else {
-                return null;
-            }
-        };
-        return Shape;
-    }(DisplayObject));
-    engine.Shape = Shape;
     var MovieClip = (function (_super) {
         __extends(MovieClip, _super);
         function MovieClip(data) {
@@ -378,43 +445,15 @@ var engine;
         MovieClip.TOTAL_FRAME = 10;
         return MovieClip;
     }(Bitmap));
-    var Timer = (function () {
-        function Timer(interval, loopNum, delayTime) {
-            this.interval = 1000;
-            this.loopNum = 1;
-            this.delayTime = 0;
-            this.interval = interval;
-            this.loopNum = loopNum;
-            if (arguments.length >= 3) {
-                this.delayTime = delayTime;
-            }
-        }
-        Timer.prototype.addEventListener = function () {
-        };
-        return Timer;
-    }());
-    engine.Timer = Timer;
-    var Tween = (function () {
-        function Tween() {
-            this.totalStep = 10;
-            this.currentStep = 0;
-        }
-        Tween.prototype.get = function (target) {
-            this.target = target;
-        };
-        Tween.prototype.to = function (x, y) {
-        };
-        return Tween;
-    }());
-    engine.Tween = Tween;
+    engine.MovieClip = MovieClip;
 })(engine || (engine = {}));
 var engine;
 (function (engine) {
     engine.run = function (canvas) {
         var stage = new engine.DisplayObjectContainer();
         var context2D = canvas.getContext("2d");
-        var render = new CanvasRenderer(stage, context2D);
         var lastNow = Date.now();
+        var renderer = new CanvasRenderer(stage, context2D);
         var frameHandler = function () {
             var now = Date.now();
             var deltaTime = now - lastNow;
@@ -422,76 +461,61 @@ var engine;
             context2D.clearRect(0, 0, 400, 400);
             context2D.save();
             stage.update();
-            render.render();
+            renderer.render();
             context2D.restore();
             lastNow = now;
             window.requestAnimationFrame(frameHandler);
         };
         window.requestAnimationFrame(frameHandler);
-        var hitResult;
-        var currentX;
-        var currentY;
-        var lastX;
-        var lastY;
-        var isMouseDown = false;
+        //鼠标点击
         window.onmousedown = function (e) {
-            isMouseDown = true;
-            var targetArray = engine.EventManager.getInstance().targets;
-            targetArray.splice(0, targetArray.length);
-            hitResult = stage.hitTest(e.offsetX, e.offsetY);
-            currentX = e.offsetX;
-            currentY = e.offsetY;
+            var x = e.offsetX;
+            var y = e.offsetY;
+            var type = "mousedown"; //mousemove
+            var target = stage.hitTest(x, y);
+            var result = target;
+            console.log(result);
+            if (result) {
+                result.dispatchEvent(e);
+                while (result.parent) {
+                    var currentTarget = result.parent;
+                    var e_1 = { type: type, target: target, currentTarget: currentTarget };
+                    result = result.parent;
+                    result.dispatchEvent(e_1);
+                }
+            }
         };
         window.onmousemove = function (e) {
-            var targetArray = engine.EventManager.getInstance().targets;
-            lastX = currentX;
-            lastY = currentY;
-            currentX = e.offsetX;
-            currentY = e.offsetY;
-            if (isMouseDown) {
-                for (var i = 0; i < targetArray.length; i++) {
-                    for (var _i = 0, _a = targetArray[i].eventArray; _i < _a.length; _i++) {
-                        var x = _a[_i];
-                        if (x.type.match("onmousemove") &&
-                            x.ifCapture == true) {
-                            x.func(e);
-                        }
-                    }
-                }
-                for (var i = targetArray.length - 1; i >= 0; i--) {
-                    for (var _b = 0, _c = targetArray[i].eventArray; _b < _c.length; _b++) {
-                        var x = _c[_b];
-                        if (x.type.match("onmousemove") &&
-                            x.ifCapture == false) {
-                            x.func(e);
-                        }
-                    }
+            var x = e.offsetX;
+            var y = e.offsetY;
+            var type = "mousemove";
+            var target = stage.hitTest(x, y);
+            var result = target;
+            //console.log(result)
+            if (result) {
+                result.dispatchEvent(e);
+                while (result.parent) {
+                    var currentTarget = result.parent;
+                    var e_2 = { type: type, target: target, currentTarget: currentTarget };
+                    result = result.parent;
+                    result.dispatchEvent(e_2);
                 }
             }
         };
         window.onmouseup = function (e) {
-            isMouseDown = false;
-            var targetArray = engine.EventManager.getInstance().targets;
-            targetArray.splice(0, targetArray.length);
-            var newHitRusult = stage.hitTest(e.offsetX, e.offsetY);
-            for (var i = 0; i < targetArray.length; i++) {
-                for (var _i = 0, _a = targetArray[i].eventArray; _i < _a.length; _i++) {
-                    var x = _a[_i];
-                    if (x.type.match("onclick") &&
-                        newHitRusult == hitResult &&
-                        x.ifCapture == true) {
-                        x.func(e);
-                    }
-                }
-            }
-            for (var i = targetArray.length - 1; i >= 0; i--) {
-                for (var _b = 0, _c = targetArray[i].eventArray; _b < _c.length; _b++) {
-                    var x = _c[_b];
-                    if (x.type.match("onclick") &&
-                        newHitRusult == hitResult &&
-                        x.ifCapture == false) {
-                        x.func(e);
-                    }
+            var x = e.offsetX;
+            var y = e.offsetY;
+            var type = "mouseup";
+            var target = stage.hitTest(x, y);
+            var result = target;
+            //console.log(result)
+            if (result) {
+                result.dispatchEvent(e);
+                while (result.parent) {
+                    var currentTarget = result.parent;
+                    var e_3 = { type: type, target: target, currentTarget: currentTarget };
+                    result = result.parent;
+                    result.dispatchEvent(e_3);
                 }
             }
         };
@@ -508,12 +532,12 @@ var engine;
             this.renderContainer(stage);
         };
         CanvasRenderer.prototype.renderContainer = function (container) {
-            for (var _i = 0, _a = container.array; _i < _a.length; _i++) {
+            for (var _i = 0, _a = container.children; _i < _a.length; _i++) {
                 var child = _a[_i];
                 var context2D = this.context2D;
                 context2D.globalAlpha = child.globalAlpha;
                 var m = child.globalMatrix;
-                context2D.setTransform(m.m11, m.m12, m.m21, m.m22, m.dx, m.dy);
+                context2D.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
                 if (child.type == "Bitmap") {
                     this.renderBitmap(child);
                 }
@@ -526,67 +550,11 @@ var engine;
             }
         };
         CanvasRenderer.prototype.renderBitmap = function (bitmap) {
-            var _this = this;
-            if (bitmap.image == null) {
-                var img_1 = new Image();
-                img_1.src = bitmap.texture;
-                img_1.onload = function () {
-                    _this.context2D.drawImage(img_1, 0, 0);
-                    bitmap.image = img_1;
-                };
-            }
-            else {
-                bitmap.image.src = bitmap.texture;
-                this.context2D.drawImage(bitmap.image, 0, 0);
-            }
+            this.context2D.drawImage(bitmap.img, 0, 0);
         };
         CanvasRenderer.prototype.renderTextField = function (textField) {
-            this.context2D.fillText(textField.text, 0, 10);
-            textField._measureTextWidth = this.context2D.measureText(textField.text).width;
         };
         return CanvasRenderer;
     }());
 })(engine || (engine = {}));
-var engine;
-(function (engine) {
-    var EventManager = (function () {
-        function EventManager() {
-        }
-        EventManager.getInstance = function () {
-            if (EventManager.eventManager == null) {
-                EventManager.eventManager = new EventManager();
-                EventManager.eventManager.targets = new Array();
-                return EventManager.eventManager;
-            }
-            else {
-                return EventManager.eventManager;
-            }
-        };
-        return EventManager;
-    }());
-    engine.EventManager = EventManager;
-    var TheEvent = (function () {
-        function TheEvent(eventType, func, target, ifCapture) {
-            this.type = "";
-            this.ifCapture = false;
-            this.type = eventType;
-            this.ifCapture = ifCapture;
-            this.func = func;
-            this.target = target;
-        }
-        return TheEvent;
-    }());
-    engine.TheEvent = TheEvent;
-    var TouchEvent = (function () {
-        function TouchEvent() {
-        }
-        return TouchEvent;
-    }());
-    engine.TouchEvent = TouchEvent;
-    var TimerEvent = (function () {
-        function TimerEvent() {
-        }
-        return TimerEvent;
-    }());
-    engine.TimerEvent = TimerEvent;
-})(engine || (engine = {}));
+//# sourceMappingURL=engine.js.map
